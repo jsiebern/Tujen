@@ -69,12 +69,20 @@ BuyItem(offer, isExalted = false) {
 	SubSequentOffers =
 	isFirstOffer := true
 	if (isExalted) {
-		Loop, 3
+		Loop, 10
 		{
 			Send {WheelDown 1}
 			Sleep, 20
 		}
 		ConfirmOffer()
+		Sleep, 100
+		if (UI_IsOnHaggleWindow()) {
+			ConfirmOffer()
+			Sleep, 100
+			if (UI_IsOnHaggleWindow()) {
+				ConfirmOffer()
+			}
+		}
 		return ""
 	}
 	; readOffer := Offer_Read()
