@@ -154,9 +154,11 @@ Item_Description_GetStackSize(description) {
 }
 
 Item_GetHagglePrice() {
-    global CURRENCY, HAGGLE_SUB_X, HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H
+    global CURRENCY, HAGGLE_SUB_X, HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H, USE_ALTERNATE_PRICE_DETECTION
 
-    return Item_GetAlternativeHagglePrice2()
+    ;if (USE_ALTERNATE_PRICE_DETECTION) {
+        return Item_GetAlternativeHagglePrice2(false)
+    ;}
 
     MouseGetPos, X, Y
 
@@ -167,7 +169,7 @@ Item_GetHagglePrice() {
 	Value := StrReplace(Value, ".", "")
 
     if (Value == "") {
-        return Item_GetAlternativeHagglePrice()
+        return Item_GetAlternativeHagglePrice2()
     }
 
     CType := "LESSER"
@@ -182,8 +184,8 @@ Item_GetHagglePrice() {
     return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value}
 }
 
-Item_GetAlternativeHagglePrice2() {
-    global CURRENCY, HAGGLE_SUB_X, HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H
+Item_GetAlternativeHagglePrice() {
+    global CURRENCY, HAGGLE_SUB_X, HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H, Base_ScreenFactor
 
     MouseGetPos, X, Y
 
@@ -194,7 +196,7 @@ Item_GetAlternativeHagglePrice2() {
     bmpNeedle := Gdip_CreateBitmapFromFile(path)
 	RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
 	Gdip_DisposeImage(bmpNeedle)
-    offsetY := -10
+    offsetY := -10 * Base_ScreenFactor
 
     if (RET < 1) {
         CType := "LESSER"
@@ -202,15 +204,23 @@ Item_GetAlternativeHagglePrice2() {
         bmpNeedle := Gdip_CreateBitmapFromFile(path)
         RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
         Gdip_DisposeImage(bmpNeedle)
-        offsetY := -15
+        offsetY := -15 * Base_ScreenFactor
     }
     if (RET < 1) {
         CType := "GRAND"
         path := A_ScriptDir . "\Lib\UI\artifact_sample_grand.png"
         bmpNeedle := Gdip_CreateBitmapFromFile(path)
-        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
+        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 20, 0xFFFFFF, 2, 1)
         Gdip_DisposeImage(bmpNeedle)
-        offsetY := -25
+        offsetY := -25 * Base_ScreenFactor
+    }
+    if (RET < 1) {
+        CType := "GRAND"
+        path := A_ScriptDir . "\Lib\UI\artifact_sample_grand2.png"
+        bmpNeedle := Gdip_CreateBitmapFromFile(path)
+        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 20, 0xFFFFFF, 20, 1)
+        Gdip_DisposeImage(bmpNeedle)
+        offsetY := -25 * Base_ScreenFactor
     }
     if (RET < 1) {
         CType := "EXCEPTIONAL"
@@ -218,7 +228,7 @@ Item_GetAlternativeHagglePrice2() {
         bmpNeedle := Gdip_CreateBitmapFromFile(path)
         RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
         Gdip_DisposeImage(bmpNeedle)
-        offsetY := -10
+        offsetY := -10 * Base_ScreenFactor
     }
     if (RET < 1) {
         return false
@@ -229,37 +239,57 @@ Item_GetAlternativeHagglePrice2() {
 
     Gdip_DisposeImage(bmpHaystack)
 
-    DirtyString := UI_ReadFromScreen(X - 100, Y, 100, HAGGLE_SUB_H, false)
+    DirtyString := UI_ReadFromScreen(X - 70 * Base_ScreenFactor, Y, 100 * Base_ScreenFactor, HAGGLE_SUB_H, false)
 
-    RegExMatch(DirtyString, "O)(?<nr>[0-9\.]{1,5})x", SubPat)
+    RegExMatch(DirtyString, "O)(?<nr>[0-9\.]{1,5})(x|X)", SubPat)
     Value := SubPat["nr"]
 	Value := StrReplace(Value, ".", "")
 
     return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value}
 }
 
-Item_GetAlternativeHagglePrice(ResetMousePosition = true) {
+Item_GetAlternativeHagglePrice2(ResetMousePosition = true) {
     global ARTIFACT_HOVER_X, ARTIFACT_HOVER_Y, CURRENCY, MOVE_SPEED, OFFER_FIELD_X, OFFER_FIELD_Y, HAGGLE_ALT_SUB_X, HAGGLE_ALT_SUB_Y, HAGGLE_ALT_SUB_W, HAGGLE_ALT_SUB_H
-
-    return Item_GetAlternativeHagglePrice2()
 
     MouseGetPos, STORE_X, STORE_Y
 
     Click
-    MouseMove, ARTIFACT_HOVER_X, ARTIFACT_HOVER_Y, MOVE_SPEED
+    
+    bmpHaystack := Gdip_BitmapFromScreen(1)
 
-    DirtyString := UI_ReadFromScreen(ARTIFACT_HOVER_X - HAGGLE_ALT_SUB_X, ARTIFACT_HOVER_Y - HAGGLE_ALT_SUB_Y, HAGGLE_ALT_SUB_W, HAGGLE_ALT_SUB_H)
+    CType := "GREATER"
+    path := A_ScriptDir . "\Lib\UI\artifact_large_sample_greater.png"
+    bmpNeedle := Gdip_CreateBitmapFromFile(path)
+	RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
+	Gdip_DisposeImage(bmpNeedle)
+    offsetY := -10 * Base_ScreenFactor
 
-    DirtyString := StrReplace(DirtyString, ".", "")
-
-    CType := "LESSER"
-    if (InStr(DirtyString, "GRAND")) {
-        CType := "GRAND"
-    } else if (InStr(DirtyString, "GREATER")) {
-        CType := "GREATER"
-    } else if (InStr(DirtyString, "EXCEPTIONAL")) {
-        CType := "EXCEPTIONAL"
+    if (RET < 1) {
+        CType := "LESSER"
+        path := A_ScriptDir . "\Lib\UI\artifact_large_sample_lesser.png"
+        bmpNeedle := Gdip_CreateBitmapFromFile(path)
+        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
+        Gdip_DisposeImage(bmpNeedle)
     }
+    if (RET < 1) {
+        CType := "GRAND"
+        path := A_ScriptDir . "\Lib\UI\artifact_large_sample_grand.png"
+        bmpNeedle := Gdip_CreateBitmapFromFile(path)
+        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
+        Gdip_DisposeImage(bmpNeedle)
+    }
+    if (RET < 1) {
+        CType := "EXCEPTIONAL"
+        path := A_ScriptDir . "\Lib\UI\artifact_large_sample_exceptional.png"
+        bmpNeedle := Gdip_CreateBitmapFromFile(path)
+        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
+        Gdip_DisposeImage(bmpNeedle)
+    }
+    if (RET < 1) {
+        return false
+    }
+
+    Gdip_DisposeImage(bmpHaystack)
 
     Value := Offer_Read()
 
@@ -268,7 +298,7 @@ Item_GetAlternativeHagglePrice(ResetMousePosition = true) {
         MouseMove, STORE_X, STORE_Y, MOVE_SPEED
     }
 
-    return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value}
+    return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value, AltMethod: true}
 }
 
 Offer_Read() {

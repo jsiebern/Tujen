@@ -64,27 +64,29 @@ ConfirmOffer() {
 	return
 }
 
-BuyItem(offer, isExalted = false) {
-	Click
+BuyItem(offer, isExalted = false, AltMethod = false) {
+	if (!AltMethod) {
+		Click
+	}
 	SubSequentOffers =
 	isFirstOffer := true
-	if (isExalted) {
-		Loop, 10
-		{
-			Send {WheelDown 1}
-			Sleep, 20
-		}
-		ConfirmOffer()
-		Sleep, 100
-		if (UI_IsOnHaggleWindow()) {
-			ConfirmOffer()
-			Sleep, 100
-			if (UI_IsOnHaggleWindow()) {
-				ConfirmOffer()
-			}
-		}
-		return ""
-	}
+	; if (isExalted) {
+	; 	Loop, 10
+	; 	{
+	; 		Send {WheelDown 1}
+	; 		Sleep, 20
+	; 	}
+	; 	ConfirmOffer()
+	; 	Sleep, 100
+	; 	if (UI_IsOnHaggleWindow()) {
+	; 		ConfirmOffer()
+	; 		Sleep, 100
+	; 		if (UI_IsOnHaggleWindow()) {
+	; 			ConfirmOffer()
+	; 		}
+	; 	}
+	; 	return ""
+	; }
 	; readOffer := Offer_Read()
 	; newOffer := readOffer
 	; if (readOffer > 600) {
@@ -136,14 +138,8 @@ Haggle(windowId, stock) {
 			TT.Hide()
 			return -1
 		}
-		; if (stock[price.Currency] < 150) {
-		; 	TT.Hide()
-		; 	return 0
-		; }
-		offer := Ceil(price.Value * 0.7)
-		if (offer <= 0) {
-			price := Item_GetAlternativeHagglePrice()
-			offer := Ceil(price.Value * 0.7)
+		if (price.Total <= 0) {
+			return 99999
 		}
 		
 		symb := item.Value > price.Total ? ">" : "<"
@@ -152,7 +148,7 @@ Haggle(windowId, stock) {
 			if (item.Value > price.Total * 3) {
 				offer := Ceil(price.Value * 0.6)
 			}
-			SubSequentOffers := BuyItem(offer, item.Name == "Exalted Orb")
+			SubSequentOffers := BuyItem(offer, item.Name == "Exalted Orb", price.AltMethod == true)
 			; T_Csv_AddEntry(windowId, item.Name, "", item.Num, item.Value, price.Value, price.Currency, price.Total, offer, SubSequentOffers, Generate_DateTime())
 			TT.Hide()
 			if (item.Name == "Prime Chaotic Resonator") {
@@ -217,12 +213,34 @@ ProcessWindow(stock) {
 }
 
 F1::
+	if (!IS_CALIBRATED) {
+		MsgBox, The script has not been calibrated for the current session, press F3 and try again
+		return
+	}
 	coins := Coinage_Read() + 1
-	stock := Stock_Read()
 	Loop, %coins% {
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
+		stock := Stock_Read()
+
+		if (stock.LESSER < 300) {
+			MsgBox % "Not enough lesser currency to continue: " stock.LESSER
+			break
+		}
+		if (stock.GREATER < 300) {
+			MsgBox % "Not enough greater currency to continue: " stock.GREATER
+			break
+		}
+		if (stock.GRAND < 300) {
+			MsgBox % "Not enough grand currency to continue: " stock.GRAND
+			break
+		}
+		if (stock.EXCEPTIONAL < 300) {
+			MsgBox % "Not enough exceptional currency to continue: " stock.EXCEPTIONAL
+			break
+		}
+
 		refreshItemPositions := ProcessWindow(stock)
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
@@ -244,6 +262,7 @@ F1::
 	if (WinActive("Path of Exile") && !ShouldBreak()) {
 		Inventory_Empty_Perform_Sequence()
 	}
+	IS_CALIBRATED := false
 	TT := TT()
 	TT.Font("S40 bold striceout underline, Arial")
 	TT.Show("Stopped...", TOOLTIP_2_X, TOOLTIP_2_Y)
@@ -263,6 +282,10 @@ return
 F3::
 	MsgBox, Calibration: Position chest and Tujen so the character does not have to move to reach both
 
+	; MsgBox, 4, , Would you like to use the alternative price detection mode?
+	; IfMsgBox, Yes
+	; 	USE_ALTERNATE_PRICE_DETECTION := true
+
 	MsgBox, Mouse over Stash and press Enter
 	MouseGetPos, X, Y
 	CHEST_X := X
@@ -276,6 +299,7 @@ F3::
 	InputBox, N, Empty inventory after how many windows?, Default is 10
 	INVENTORY_EMPTY_AFTER_WINDOWS := N
 
+	IS_CALIBRATED := true
 	MsgBox, Calibration complete - press F1 to start haggling
 
 	Inventory_Open_Tujen()
@@ -286,8 +310,18 @@ F3::
 return
 
 F4::
+	; bmpHaystack := Gdip_BitmapFromScreen(1)
+	; path := A_ScriptDir . "\Lib\UI\artifact_large_sample_grand.png"
+	; bmpNeedle := Gdip_CreateBitmapFromFile(path)
+	; RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
+	; Gdip_DisposeImage(bmpNeedle)
+	; Gdip_DisposeImage(bmpHaystack)
+	; MsgBox % LST
+	; v := Offer_Read()
+	; MsgBox % v
+	; return
+
 	item := Item_GetInfo()
-	; price := Item_GetHagglePrice()
 	price := Item_GetAlternativeHagglePrice2()
 	
 	lim := Ceil(item.Value / CURRENCY[price.Currency])

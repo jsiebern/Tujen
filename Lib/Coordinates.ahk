@@ -132,6 +132,8 @@ TUJEN_X := 1151 * Base_ScreenFactor
 TUJEN_Y := 505 * Base_ScreenFactor
 TUJEN_HAGGLE_X := 1497 * Base_ScreenFactor
 TUJEN_HAGGLE_Y := 389 * Base_ScreenFactor
+IS_CALIBRATED := false
+USE_ALTERNATE_PRICE_DETECTION := false
 
 
 

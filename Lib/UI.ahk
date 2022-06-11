@@ -110,6 +110,6 @@ UI_ReadFromScreen(x, y, w, h, num = false, bw = false) {
 		RunWait, %command% , , hide
 		FileRead, Result, %outPath%
 		
-		return Result
+		return StrReplace(Result, " ", "")
 	}
 }
