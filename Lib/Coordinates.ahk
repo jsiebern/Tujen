@@ -125,6 +125,7 @@ COINAGE_READ_SUB_Y_GRAND := 195 * Base_ScreenFactor
 COINAGE_READ_SUB_Y_EXCEPTIONAL := 270 * Base_ScreenFactor
 INVENTORY_START_X := 1728 * Base_ScreenFactor
 INVENTORY_START_Y := 818 * Base_ScreenFactor
+INVENTORY_EMPTY_AFTER_WINDOWS := 10
 CHEST_X := 1226 * Base_ScreenFactor
 CHEST_Y := 552 * Base_ScreenFactor
 TUJEN_X := 1151 * Base_ScreenFactor

@@ -158,7 +158,7 @@ Item_GetHagglePrice() {
 
     MouseGetPos, X, Y
 
-    DirtyString := UI_ReadFromScreen(X - HAGGLE_SUB_X, Y - HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H)
+    DirtyString := UI_ReadFromScreen(X - HAGGLE_SUB_X, Y - HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H, false, true)
 
     RegExMatch(DirtyString, "O)(?<nr>[0-9\.]{1,5})x", SubPat)
     Value := SubPat["nr"]

@@ -128,10 +128,10 @@ Haggle(windowId, stock) {
 			TT.Hide()
 			return -1
 		}
-		if (stock[price.Currency] < 150) {
-			TT.Hide()
-			return 0
-		}
+		; if (stock[price.Currency] < 150) {
+		; 	TT.Hide()
+		; 	return 0
+		; }
 		offer := Ceil(price.Value * 0.7)
 		if (offer <= 0) {
 			price := Item_GetAlternativeHagglePrice()
@@ -213,9 +213,15 @@ F1::
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
+		if (Mod(A_Index, INVENTORY_EMPTY_AFTER_WINDOWS) == 0) {
+			Inventory_Empty_Perform_Sequence()
+		}
 		if (coins - A_Index > 0) {
 			Trade_Refresh()
 		}
+	}
+	if (WinActive("Path of Exile") && !ShouldBreak()) {
+		Inventory_Empty_Perform_Sequence()
 	}
 	TT := TT()
 	TT.Font("S40 bold striceout underline, Arial")
@@ -234,19 +240,27 @@ F2::
 return
 
 F3::
-; 	ImgPath := A_ScriptDir . "\Currencies\Ancient Orb.png"
+	MsgBox, Calibration: Position chest and Tujen so the character does not have to move to reach both
 
-; 	TT := TT("Color=0x008000 PARENT=90")
-; 	TT.Title("Window Value")
-; 	TT.Icon(ImgPath, "")
-; 	TT.Font("S40 bold striceout underline, Arial")
-; 	TT.Show("0c", 445, 175)
-; 	Sleep, 2000
-; 	TT.Hide()
-; return
+	MsgBox, Mouse over Stash and press Enter
+	MouseGetPos, X, Y
+	CHEST_X := X
+	CHEST_Y := Y
 
+	MsgBox, Mouse over Tujen and press Enter
+	MouseGetPos, X, Y
+	TUJEN_X := X
+	TUJEN_Y := Y
 
-Coord_Echo()
+	InputBox, N, Empty inventory after how many windows?, Default is 10
+	INVENTORY_EMPTY_AFTER_WINDOWS := N
+
+	MsgBox, Calibration complete - press F1 to start haggling
+
+	Inventory_Open_Tujen()
+    Sleep, 200
+
+	; Coord_Echo()
 	
 return
 
@@ -265,7 +279,6 @@ F4::
 	Sleep, 5000
 	TTF.Hide()
 return
-
 
 F6::
 	path := A_ScriptDir . "\Lib\UI\haggle_window_open.png"
