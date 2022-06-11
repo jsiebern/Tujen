@@ -147,6 +147,9 @@ Haggle(windowId, stock) {
 			SubSequentOffers := BuyItem(offer, item.Name == "Exalted Orb")
 			; T_Csv_AddEntry(windowId, item.Name, "", item.Num, item.Value, price.Value, price.Currency, price.Total, offer, SubSequentOffers, Generate_DateTime())
 			TT.Hide()
+			if (item.Name == "Prime Chaotic Resonator") {
+				return 99999
+			}
 			return item.Value
 		}
 		else {
@@ -186,6 +189,9 @@ ProcessWindow(stock) {
 			if (itemValue < 0) {
 				break
 			}
+			else if (itemValue == 99999) {
+				return true
+			}
 			windowValue := windowValue + itemValue
 			TT.Text(Round(windowValue, 1) "c")
 			Sleep, 10
@@ -199,7 +205,7 @@ ProcessWindow(stock) {
 	}
 	TT.Hide()
 	; T_Csv_Save()
-	return
+	return false
 }
 
 F1::
@@ -209,9 +215,16 @@ F1::
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
-		ProcessWindow(stock)
+		refreshItemPositions := ProcessWindow(stock)
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
+		}
+		if (refreshItemPositions == true) {
+			Inventory_Exit()
+			Sleep, 400
+			Inventory_Open_Tujen_HaggleMenu()
+			Sleep, 400
+			continue
 		}
 		if (Mod(A_Index, INVENTORY_EMPTY_AFTER_WINDOWS) == 0) {
 			Inventory_Empty_Perform_Sequence()

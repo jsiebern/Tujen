@@ -41,10 +41,16 @@ Inventory_Exit() {
 }
 
 Inventory_Open_Tujen() {
-    global TUJEN_X, TUJEN_Y, TUJEN_HAGGLE_X, TUJEN_HAGGLE_Y, MOVE_SPEED
+    global TUJEN_X, TUJEN_Y, MOVE_SPEED
     MouseMove, TUJEN_X, TUJEN_Y, MOVE_SPEED
 	Click
     Sleep, 200
+    Inventory_Open_Tujen_HaggleMenu()
+    return
+}
+
+Inventory_Open_Tujen_HaggleMenu() {
+    global TUJEN_HAGGLE_X, TUJEN_HAGGLE_Y, MOVE_SPEED
     MouseMove, TUJEN_HAGGLE_X, TUJEN_HAGGLE_Y, MOVE_SPEED
 	Click
     return
