@@ -1,0 +1,14 @@
+{
+  "name": "fetchprices",
+  "version": "1.0.0",
+  "description": "",
+  "main": "FetchPrices.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}
