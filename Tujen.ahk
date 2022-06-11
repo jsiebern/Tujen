@@ -287,7 +287,8 @@ return
 
 F4::
 	item := Item_GetInfo()
-	price := Item_GetHagglePrice()
+	; price := Item_GetHagglePrice()
+	price := Item_GetAlternativeHagglePrice2()
 	
 	lim := Ceil(item.Value / CURRENCY[price.Currency])
 	addLimit := "`r`nMax: " lim " " price.Currency

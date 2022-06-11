@@ -156,6 +156,8 @@ Item_Description_GetStackSize(description) {
 Item_GetHagglePrice() {
     global CURRENCY, HAGGLE_SUB_X, HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H
 
+    return Item_GetAlternativeHagglePrice2()
+
     MouseGetPos, X, Y
 
     DirtyString := UI_ReadFromScreen(X - HAGGLE_SUB_X, Y - HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H, false, true)
@@ -180,8 +182,66 @@ Item_GetHagglePrice() {
     return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value}
 }
 
+Item_GetAlternativeHagglePrice2() {
+    global CURRENCY, HAGGLE_SUB_X, HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H
+
+    MouseGetPos, X, Y
+
+	bmpHaystack := Gdip_BitmapFromScreen(1)
+
+    CType := "GREATER"
+    path := A_ScriptDir . "\Lib\UI\artifact_sample_greater.png"
+    bmpNeedle := Gdip_CreateBitmapFromFile(path)
+	RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
+	Gdip_DisposeImage(bmpNeedle)
+    offsetY := -10
+
+    if (RET < 1) {
+        CType := "LESSER"
+        path := A_ScriptDir . "\Lib\UI\artifact_sample_lesser.png"
+        bmpNeedle := Gdip_CreateBitmapFromFile(path)
+        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
+        Gdip_DisposeImage(bmpNeedle)
+        offsetY := -15
+    }
+    if (RET < 1) {
+        CType := "GRAND"
+        path := A_ScriptDir . "\Lib\UI\artifact_sample_grand.png"
+        bmpNeedle := Gdip_CreateBitmapFromFile(path)
+        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
+        Gdip_DisposeImage(bmpNeedle)
+        offsetY := -25
+    }
+    if (RET < 1) {
+        CType := "EXCEPTIONAL"
+        path := A_ScriptDir . "\Lib\UI\artifact_sample_exceptional.png"
+        bmpNeedle := Gdip_CreateBitmapFromFile(path)
+        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
+        Gdip_DisposeImage(bmpNeedle)
+        offsetY := -10
+    }
+    if (RET < 1) {
+        return false
+    }
+    spl := StrSplit(LST, ",")
+    X := spl[1]
+    Y := spl[2] + offsetY
+
+    Gdip_DisposeImage(bmpHaystack)
+
+    DirtyString := UI_ReadFromScreen(X - 100, Y, 100, HAGGLE_SUB_H, false)
+
+    RegExMatch(DirtyString, "O)(?<nr>[0-9\.]{1,5})x", SubPat)
+    Value := SubPat["nr"]
+	Value := StrReplace(Value, ".", "")
+
+    return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value}
+}
+
 Item_GetAlternativeHagglePrice(ResetMousePosition = true) {
     global ARTIFACT_HOVER_X, ARTIFACT_HOVER_Y, CURRENCY, MOVE_SPEED, OFFER_FIELD_X, OFFER_FIELD_Y, HAGGLE_ALT_SUB_X, HAGGLE_ALT_SUB_Y, HAGGLE_ALT_SUB_W, HAGGLE_ALT_SUB_H
+
+    return Item_GetAlternativeHagglePrice2()
 
     MouseGetPos, STORE_X, STORE_Y
 
