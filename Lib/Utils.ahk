@@ -126,7 +126,7 @@ Item_Description_Is_Unique(description) {
     }
     HasMemory := InStr(description, "Memory")
     if (HasMemory <= 0) {
-        return false
+        ; return false
     }
     return true
 }
@@ -154,216 +154,82 @@ Item_Description_GetStackSize(description) {
 }
 
 Item_GetHagglePrice() {
-    global CURRENCY, HAGGLE_SUB_X, HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H, USE_ALTERNATE_PRICE_DETECTION
-
-    ;if (USE_ALTERNATE_PRICE_DETECTION) {
-        return Item_GetAlternativeHagglePrice2(false)
-    ;}
-
-    MouseGetPos, X, Y
-
-    DirtyString := UI_ReadFromScreen(X - HAGGLE_SUB_X, Y - HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H, false, true)
-
-    RegExMatch(DirtyString, "O)(?<nr>[0-9\.]{1,5})x", SubPat)
-    Value := SubPat["nr"]
-	Value := StrReplace(Value, ".", "")
-
-    if (Value == "") {
-        return Item_GetAlternativeHagglePrice2()
-    }
-
-    CType := "LESSER"
-    if (InStr(DirtyString, "GRAND")) {
-        CType := "GRAND"
-    } else if (InStr(DirtyString, "GREATER")) {
-        CType := "GREATER"
-    } else if (InStr(DirtyString, "EXCEPTIONAL")) {
-        CType := "EXCEPTIONAL"
-    }
-
-    return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value}
-}
-
-Item_GetAlternativeHagglePrice() {
-    global CURRENCY, HAGGLE_SUB_X, HAGGLE_SUB_Y, HAGGLE_SUB_W, HAGGLE_SUB_H, Base_ScreenFactor
-
-    MouseGetPos, X, Y
-
-	bmpHaystack := Gdip_BitmapFromScreen(1)
-
-    CType := "GREATER"
-    path := A_ScriptDir . "\Lib\UI\artifact_sample_greater.png"
-    bmpNeedle := Gdip_CreateBitmapFromFile(path)
-	RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
-	Gdip_DisposeImage(bmpNeedle)
-    offsetY := -10 * Base_ScreenFactor
-
-    if (RET < 1) {
-        CType := "LESSER"
-        path := A_ScriptDir . "\Lib\UI\artifact_sample_lesser.png"
-        bmpNeedle := Gdip_CreateBitmapFromFile(path)
-        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
-        Gdip_DisposeImage(bmpNeedle)
-        offsetY := -15 * Base_ScreenFactor
-    }
-    if (RET < 1) {
-        CType := "GRAND"
-        path := A_ScriptDir . "\Lib\UI\artifact_sample_grand.png"
-        bmpNeedle := Gdip_CreateBitmapFromFile(path)
-        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 20, 0xFFFFFF, 2, 1)
-        Gdip_DisposeImage(bmpNeedle)
-        offsetY := -25 * Base_ScreenFactor
-    }
-    if (RET < 1) {
-        CType := "GRAND"
-        path := A_ScriptDir . "\Lib\UI\artifact_sample_grand2.png"
-        bmpNeedle := Gdip_CreateBitmapFromFile(path)
-        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 20, 0xFFFFFF, 20, 1)
-        Gdip_DisposeImage(bmpNeedle)
-        offsetY := -25 * Base_ScreenFactor
-    }
-    if (RET < 1) {
-        CType := "EXCEPTIONAL"
-        path := A_ScriptDir . "\Lib\UI\artifact_sample_exceptional.png"
-        bmpNeedle := Gdip_CreateBitmapFromFile(path)
-        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
-        Gdip_DisposeImage(bmpNeedle)
-        offsetY := -10 * Base_ScreenFactor
-    }
-    if (RET < 1) {
-        return false
-    }
-    spl := StrSplit(LST, ",")
-    X := spl[1]
-    Y := spl[2] + offsetY
-
-    Gdip_DisposeImage(bmpHaystack)
-
-    DirtyString := UI_ReadFromScreen(X - 70 * Base_ScreenFactor, Y, 100 * Base_ScreenFactor, HAGGLE_SUB_H, false)
-
-    RegExMatch(DirtyString, "O)(?<nr>[0-9\.]{1,5})(x|X)", SubPat)
-    Value := SubPat["nr"]
-	Value := StrReplace(Value, ".", "")
-
-    return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value}
+    return Item_GetAlternativeHagglePrice2(false)
 }
 
 Item_GetAlternativeHagglePrice2(ResetMousePosition = true) {
-    global ARTIFACT_HOVER_X, ARTIFACT_HOVER_Y, CURRENCY, MOVE_SPEED, OFFER_FIELD_X, OFFER_FIELD_Y, HAGGLE_ALT_SUB_X, HAGGLE_ALT_SUB_Y, HAGGLE_ALT_SUB_W, HAGGLE_ALT_SUB_H
-
-    MouseGetPos, STORE_X, STORE_Y
+    global CURRENCY, STR_LESSER_ARTIFACT, STR_GREATER_ARTIFACT, STR_GRAND_ARTIFACT, STR_EXCEPTIONAL_ARTIFACT, MOVE_SPEED
 
     Click
+    Sleep, 50
     
     bmpHaystack := Gdip_BitmapFromScreen(1)
 
-    CType := "GREATER"
-    path := A_ScriptDir . "\Lib\UI\artifact_large_sample_greater.png"
-    bmpNeedle := Gdip_CreateBitmapFromFile(path)
-	RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
-	Gdip_DisposeImage(bmpNeedle)
-    offsetY := -10 * Base_ScreenFactor
-
-    if (RET < 1) {
+    if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_LESSER_ARTIFACT)) {
         CType := "LESSER"
-        path := A_ScriptDir . "\Lib\UI\artifact_large_sample_lesser.png"
-        bmpNeedle := Gdip_CreateBitmapFromFile(path)
-        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
-        Gdip_DisposeImage(bmpNeedle)
-    }
-    if (RET < 1) {
+	} else if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_GREATER_ARTIFACT, 1)) {
+        CType := "GREATER"
+    } else if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_GRAND_ARTIFACT, 1)) {
         CType := "GRAND"
-        path := A_ScriptDir . "\Lib\UI\artifact_large_sample_grand.png"
-        bmpNeedle := Gdip_CreateBitmapFromFile(path)
-        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
-        Gdip_DisposeImage(bmpNeedle)
-    }
-    if (RET < 1) {
+    } else if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_EXCEPTIONAL_ARTIFACT, 1)) {
         CType := "EXCEPTIONAL"
-        path := A_ScriptDir . "\Lib\UI\artifact_large_sample_exceptional.png"
-        bmpNeedle := Gdip_CreateBitmapFromFile(path)
-        RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
-        Gdip_DisposeImage(bmpNeedle)
-    }
-    if (RET < 1) {
+    } else {
         return false
     }
-
-    Gdip_DisposeImage(bmpHaystack)
 
     Value := Offer_Read()
 
     if (ResetMousePosition) {
         Send, {Esc}
-        MouseMove, STORE_X, STORE_Y, MOVE_SPEED
     }
 
     return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value, AltMethod: true}
 }
 
-Offer_Read() {
-    global ARTIFACT_HOVER_X, ARTIFACT_HOVER_Y, CURRENCY, MOVE_SPEED, OFFER_FIELD_X, OFFER_FIELD_Y, OFFER_READ_SUB_X, OFFER_READ_SUB_Y, OFFER_READ_SUB_W, OFFER_READ_SUB_H
-
-    DirtyString := UI_ReadFromScreen(OFFER_FIELD_X - OFFER_READ_SUB_X, OFFER_FIELD_Y - OFFER_READ_SUB_Y, OFFER_READ_SUB_W, OFFER_READ_SUB_H, true)
-
-    RegExMatch(DirtyString, "O)(?<nr>[0-9]{1,4})", SubPat)
+CleanNumberRead(result) {
+    result := StrReplace(result, " ", "")
+    RegExMatch(result, "O)(?<nr>[0-9\.]{1,6})", SubPat)
     Value := SubPat["nr"]
+	return StrReplace(Value, ".", "")
+}
 
-    return Value
+Offer_Read() {
+    global COORD_HAGGLE_PRICE_X, COORD_HAGGLE_PRICE_Y, COORD_HAGGLE_PRICE_W, COORD_HAGGLE_PRICE_H
+    return CleanNumberRead(UI_ReadFromScreen(COORD_HAGGLE_PRICE_X, COORD_HAGGLE_PRICE_Y, COORD_HAGGLE_PRICE_W, COORD_HAGGLE_PRICE_H, true))
 }
 
 Coinage_Read() {
-    global COINAGE_X, COINAGE_Y
-
-    DirtyString := UI_ReadFromScreen(COINAGE_X - 30, COINAGE_Y - 20, 60, 40, true)
-
-    RegExMatch(DirtyString, "O)(?<nr>[0-9]{1,4})", SubPat)
-    Value := SubPat["nr"]
-    if (Value == "") {
-        return 0
-    }
-
-    return Value
+    global COORD_COINS_LEFT_X, COORD_COINS_LEFT_Y, COORD_COINS_LEFT_W, COORD_COINS_LEFT_H
+    return CleanNumberRead(UI_ReadFromScreen(COORD_COINS_LEFT_X, COORD_COINS_LEFT_Y, COORD_COINS_LEFT_W, COORD_COINS_LEFT_H, true))
 }
 
 Stock_Read() {
-    global COINAGE_X, COINAGE_Y, COINAGE_READ_SUB_X, COINAGE_READ_SUB_W, COINAGE_READ_SUB_H, COINAGE_READ_SUB_Y_LESSER, COINAGE_READ_SUB_Y_GREATER, COINAGE_READ_SUB_Y_GRAND, COINAGE_READ_SUB_Y_EXCEPTIONAL
+    global COORD_LESSER_LEFT_X, COORD_LESSER_LEFT_Y, COORD_LESSER_LEFT_W, COORD_LESSER_LEFT_H
+    global COORD_GREATER_LEFT_X, COORD_GREATER_LEFT_Y, COORD_GREATER_LEFT_W, COORD_GREATER_LEFT_H
+    global COORD_GRAND_LEFT_X, COORD_GRAND_LEFT_Y, COORD_GRAND_LEFT_W, COORD_GRAND_LEFT_H
+    global COORD_EXCEPTIONAL_LEFT_X, COORD_EXCEPTIONAL_LEFT_Y, COORD_EXCEPTIONAL_LEFT_W, COORD_EXCEPTIONAL_LEFT_H
 
-    lesser := UI_ReadFromScreen(COINAGE_X - COINAGE_READ_SUB_X, COINAGE_Y + COINAGE_READ_SUB_Y_LESSER, COINAGE_READ_SUB_W, COINAGE_READ_SUB_H, true)
-    RegExMatch(lesser, "O)(?<nr>[0-9]{1,4})", SubPat)
-    lesser := SubPat["nr"]
-    if (lesser == "") {
-        lesser := 0
-    }
-
-    greater := UI_ReadFromScreen(COINAGE_X - COINAGE_READ_SUB_X, COINAGE_Y + COINAGE_READ_SUB_Y_GREATER, COINAGE_READ_SUB_W, COINAGE_READ_SUB_H, true)
-    RegExMatch(greater, "O)(?<nr>[0-9]{1,4})", SubPat)
-    greater := SubPat["nr"]
-    if (greater == "") {
-        greater := 0
-    }
-
-    grand := UI_ReadFromScreen(COINAGE_X - COINAGE_READ_SUB_X, COINAGE_Y + COINAGE_READ_SUB_Y_GRAND, COINAGE_READ_SUB_W, COINAGE_READ_SUB_H, true)
-    RegExMatch(grand, "O)(?<nr>[0-9]{1,4})", SubPat)
-    grand := SubPat["nr"]
-    if (grand == "") {
-        grand := 0
-    }
-    
-    exceptional := UI_ReadFromScreen(COINAGE_X - COINAGE_READ_SUB_X, COINAGE_Y + COINAGE_READ_SUB_Y_EXCEPTIONAL, COINAGE_READ_SUB_W, COINAGE_READ_SUB_H, true)
-    RegExMatch(exceptional, "O)(?<nr>[0-9]{1,4})", SubPat)
-    exceptional := SubPat["nr"]
-    if (exceptional == "") {
-        exceptional := 0
-    }
+    lesser := CleanNumberRead(UI_ReadFromScreen(COORD_LESSER_LEFT_X, COORD_LESSER_LEFT_Y, COORD_LESSER_LEFT_W, COORD_LESSER_LEFT_H, true))
+    greater := CleanNumberRead(UI_ReadFromScreen(COORD_GREATER_LEFT_X, COORD_GREATER_LEFT_Y, COORD_GREATER_LEFT_W, COORD_GREATER_LEFT_H, true))
+    grand := CleanNumberRead(UI_ReadFromScreen(COORD_GRAND_LEFT_X, COORD_GRAND_LEFT_Y, COORD_GRAND_LEFT_W, COORD_GRAND_LEFT_H, true))
+    exceptional := CleanNumberRead(UI_ReadFromScreen(COORD_EXCEPTIONAL_LEFT_X, COORD_EXCEPTIONAL_LEFT_Y, COORD_EXCEPTIONAL_LEFT_W, COORD_EXCEPTIONAL_LEFT_H, true))
 
     return {LESSER: lesser, GREATER: greater, GRAND: grand, EXCEPTIONAL: exceptional}
 }
 
+X_REFRESH := 0
+Y_REFRESH := 0
 Trade_Refresh() {
-    global REFRESH_BUTTON_X, REFRESH_BUTTON_Y, MOVE_SPEED
-    MouseMove, REFRESH_BUTTON_X, REFRESH_BUTTON_Y, MOVE_SPEED
+    global STR_REROLL_CURRENCY, X_REFRESH, Y_REFRESH, MOVE_SPEED
+    if (X_REFRESH == 0) {
+        if (FindText(X:="wait", Y:=3, 0, 0, 0, 0, 0, 0, STR_REROLL_CURRENCY)) {
+            X_REFRESH := X
+            Y_REFRESH := Y
+        }
+    }
+    MouseMove, X_REFRESH, Y_REFRESH, MOVE_SPEED
     Click
+    return
 }
 
 Generate_Id() {

@@ -1,37 +1,32 @@
 Inventory_Loop_Empty() {
-    global INVENTORY_START_X, INVENTORY_START_Y, MOVE_SPEED, CELL_SIZE
-
-    ; if (!UI_IsInventoryOpen() || !UI_IsStashOpen()) {
-    ;    return false
-    ; }
+    global InventoryGridX, InventoryGridY, MOVE_SPEED, CELL_SIZE
 
     Send, {Ctrl Down}
-	Loop, 12 {
-		iX := A_Index - 1
-		Loop, 5 {
-			iY := A_Index - 1
-
-			MouseMove, INVENTORY_START_X + (iX * CELL_SIZE), INVENTORY_START_Y + (iY * CELL_SIZE), MOVE_SPEED
+    For C, GridX in InventoryGridX {
+        For R, GridY in InventoryGridY {
+            MouseMove, GridX + CELL_SIZE / 2, GridY - CELL_SIZE / 2, MOVE_SPEED
             Sleep, 10
-			Click
+            Click
 
             if (!WinActive("Path of Exile") || ShouldBreak()) {
                 break
             }
-		}
+        }
         if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
-	}
+    }
     Send, {Ctrl Up}
+
 	return true
 }
 
 Inventory_Click_Chest() {
-    global CHEST_X, CHEST_Y, MOVE_SPEED
-
-    MouseMove, CHEST_X, CHEST_Y, MOVE_SPEED
-	Click
+    global STR_STASH, MOVE_SPEED
+    if (FindText(X, Y, 0, 0, 0, 0, 0, 0, STR_STASH)) {
+        MouseMove, X, Y, MOVE_SPEED
+        Click
+	}
     return
 }
 
@@ -40,24 +35,44 @@ Inventory_Exit() {
     return
 }
 
+Inventory_Ensure_Tujen() {
+    global STR_TUJEN_WINDOW_OPEN, STR_HAGGLE_WINDOW_OPEN, MOVE_SPEED
+    if (FindText(X, Y, 0, 0, 0, 0, 0, 0, STR_TUJEN_WINDOW_OPEN)) {
+        return true
+	} else if (FindText(X, Y, 0, 0, 0, 0, 0, 0, STR_HAGGLE_WINDOW_OPEN)) {
+        Send, {Esc}
+        return true
+	} else {
+        Inventory_Open_Tujen()
+        return true
+    }
+}
+
 Inventory_Open_Tujen() {
-    global TUJEN_X, TUJEN_Y, MOVE_SPEED
-    MouseMove, TUJEN_X, TUJEN_Y, MOVE_SPEED
-	Click
+    global STR_TUJEN_CHARACTER, MOVE_SPEED
+    if (FindText(X:="wait", Y:=3, 0, 0, 0, 0, 0, 0, STR_TUJEN_CHARACTER)) {
+        MouseMove, X, Y, MOVE_SPEED
+        Click
+	}
     Sleep, 200
     Inventory_Open_Tujen_HaggleMenu()
     return
 }
 
 Inventory_Open_Tujen_HaggleMenu() {
-    global TUJEN_HAGGLE_X, TUJEN_HAGGLE_Y, MOVE_SPEED
-    MouseMove, TUJEN_HAGGLE_X, TUJEN_HAGGLE_Y, MOVE_SPEED
-	Click
+    global STR_HAGGLE_FOR_ITEMS, MOVE_SPEED
+    if (FindText(X:="wait", Y:=3, 0, 0, 0, 0, 0, 0, STR_HAGGLE_FOR_ITEMS)) {
+        MouseMove, X, Y, MOVE_SPEED
+        Click
+	}
     return
 }
 
 Inventory_Empty_Perform_Sequence() {
-    Sleep, 400
+    GuiHideSettings()
+    Sleep, 200
+    Inventory_Exit()
+    Sleep, 200
     Inventory_Exit()
 	Sleep, 400
 	Inventory_Click_Chest()
@@ -68,4 +83,5 @@ Inventory_Empty_Perform_Sequence() {
 	Sleep, 400
 	Inventory_Open_Tujen()
     Sleep, 400
+    GuiShowSettings()
 }

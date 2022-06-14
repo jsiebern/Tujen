@@ -1,55 +1,18 @@
 UI_IsOnHaggleWindow() {
-    path := A_ScriptDir . "\Lib\UI\haggle_window_open.png"
-
-    bmpNeedle := Gdip_CreateBitmapFromFile(path)
-	bmpHaystack := Gdip_BitmapFromScreen(1)
-
-	RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LIST, 0, 0, 0, 0, 0, 0xFFFFFF, 1, 1)
-	Gdip_DisposeImage(bmpHaystack)
-	Gdip_DisposeImage(bmpNeedle)
-    
-    return RET > 0
+	global STR_HAGGLE_WINDOW_OPEN, MOVE_SPEED
+    if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_HAGGLE_WINDOW_OPEN)) {
+        return true
+	}
+	return false
 }
 
 UI_IsInventoryOpen() {
-    path := A_ScriptDir . "\Lib\UI\inventory.png"
-
-    bmpNeedle := Gdip_CreateBitmapFromFile(path)
-	bmpHaystack := Gdip_BitmapFromScreen(1)
-
-	RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LIST, 0, 0, 0, 0, 0, 0xFFFFFF, 1, 1)
-	Gdip_DisposeImage(bmpHaystack)
-	Gdip_DisposeImage(bmpNeedle)
-    
-    return RET > 0
+    return false
 }
 
 UI_IsStashOpen() {
-    path := A_ScriptDir . "\Lib\UI\stash.png"
-
-    bmpNeedle := Gdip_CreateBitmapFromFile(path)
-	bmpHaystack := Gdip_BitmapFromScreen(1)
-
-	RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LIST, 0, 0, 0, 0, 0, 0xFFFFFF, 1, 1)
-	Gdip_DisposeImage(bmpHaystack)
-	Gdip_DisposeImage(bmpNeedle)
-    
-    return RET > 0
+    return false
 }
-
-; UI_ReadFromScreen(xStart, xEnd, yStart, yEnd) {
-; 	path := A_ScriptDir . "\GdipCapture.png"
-; 	outPath := A_ScriptDir . "\GdipOut.txt"
-
-; 	pBitmap := Gdip_BitmapFromScreen(xStart "|" yStart "|" xEnd - xStart "|" yEnd - yStart)
-;     Gdip_SaveBitmapToFile(pBitmap, path, 100)
-;     Gdip_DisposeImage(pBitmap)
-
-;     RunWait, %A_ScriptDir%\Capture2Text\Capture2Text_CLI.exe -i %path% > %outPath% , , hide
-; 	FileRead, Result, %outPath%
-; 	;FileDelete % outPath
-; 	return Result
-; }
 
 MCode(ByRef code, hex) { ; allocate memory and write Machine Code there
    VarSetCapacity(code,StrLen(hex)//2)

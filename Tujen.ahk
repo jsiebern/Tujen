@@ -4,9 +4,11 @@ SetWorkingDir, %A_ScriptDir%
 
 #include Gdip\Gdip.ahk
 #include Gdip\Gdip_ImageSearch.ahk
+#Include Lib\FindText\FindText.ahk
+#include Lib\Coordinates.ahk
+#include Gui\Tujen_Gui.ahk
 #include CSV.ahk
 #include Lib\Prices.ahk
-#include Lib\Coordinates.ahk
 #include Lib\Utils.ahk
 #include Lib\UI.ahk
 #include Tujen_Functions.ahk
@@ -20,11 +22,6 @@ STOP_SCRIPT := false
 pToken := Gdip_Startup()
 OnExit, GdipShutdown
 
-;------ CTRL + Alt + y
-^!y::
-	Coord_SetGridStart()
-return
-
 ShouldBreak() {
 	if (GetKeyState("Del", "P") == 1) {
 		return true
@@ -34,34 +31,19 @@ ShouldBreak() {
 	}
 }
 
-EnterOffer(offer) {
-	global OFFER_FIELD_X, OFFER_FIELD_Y, MOVE_SPEED
-
-	if (!UI_IsOnHaggleWindow() || !WinActive("Path of Exile") || ShouldBreak()) {
-		Sleep, 300
-		if (!UI_IsOnHaggleWindow() || !WinActive("Path of Exile") || ShouldBreak()) {
-			return
+X_CONFIRM := 0
+Y_CONFIRM := 0
+ConfirmOffer() {
+	global STR_CONFIRM_BUTTON, X_CONFIRM, Y_CONFIRM, MOVE_SPEED
+	if (X_CONFIRM == 0) {
+		if (FindText(X:="wait", Y:=3, 0, 0, 0, 0, 0, 0, STR_CONFIRM_BUTTON)) {
+			X_CONFIRM := X
+			Y_CONFIRM := Y
 		}
 	}
-	if (offer <= 10 ) {
-		return
-	}	
-	MouseMove, OFFER_FIELD_X, OFFER_FIELD_Y, MOVE_SPEED
+	MouseMove, X_CONFIRM, Y_CONFIRM, MOVE_SPEED
 	Click
-	Sleep, 10
-	Click
-	Sleep, 100
-	Send % offer
-	Sleep, 50
-	return
-}
-
-ConfirmOffer() {
-	global CONFIRM_BUTTON_X, CONFIRM_BUTTON_Y, MOVE_SPEED
-
-	MouseMove, CONFIRM_BUTTON_X, CONFIRM_BUTTON_Y, MOVE_SPEED
-	Click
-	return
+    return
 }
 
 BuyItem(offer, isExalted = false, AltMethod = false) {
@@ -70,29 +52,6 @@ BuyItem(offer, isExalted = false, AltMethod = false) {
 	}
 	SubSequentOffers =
 	isFirstOffer := true
-	; if (isExalted) {
-	; 	Loop, 10
-	; 	{
-	; 		Send {WheelDown 1}
-	; 		Sleep, 20
-	; 	}
-	; 	ConfirmOffer()
-	; 	Sleep, 100
-	; 	if (UI_IsOnHaggleWindow()) {
-	; 		ConfirmOffer()
-	; 		Sleep, 100
-	; 		if (UI_IsOnHaggleWindow()) {
-	; 			ConfirmOffer()
-	; 		}
-	; 	}
-	; 	return ""
-	; }
-	; readOffer := Offer_Read()
-	; newOffer := readOffer
-	; if (readOffer > 600) {
-	; 	Send, {Esc}
-	; 	return ""3
-	; }
 	Loop {
 		if (A_Index > 2) {
 			ConfirmOffer()
@@ -130,7 +89,7 @@ Haggle(windowId, stock) {
 	iconPath := A_ScriptDir . "\Currencies\" . Item.Name . ".png"
 	TT.Title(item.Name, iconPath, "")
 	TT.Font("S40 bold striceout underline, Arial")
-	TT.Show(Round(Item.Value, 1) "c", 1020, 175)
+	TT.Show(Round(Item.Value, 1) "c", 1020, 0)
 
 	if (item.Value > 0) {
 		price := Item_GetHagglePrice()
@@ -159,7 +118,10 @@ Haggle(windowId, stock) {
 		else {
 			; T_Csv_AddEntry(windowId, item.Name, "", item.Num, item.Value, price.Value, price.Currency, price.Total, "", "", Generate_DateTime())
 			if (UI_IsOnHaggleWindow()) {
-				Send, {Esc}
+				Sleep, 100
+				if (UI_IsOnHaggleWindow()) {
+					Send, {Esc}
+				}
 			}
 			TT.Hide()
 			return 0
@@ -212,33 +174,37 @@ ProcessWindow(stock) {
 	return false
 }
 
-F1::
-	if (!IS_CALIBRATED) {
-		MsgBox, The script has not been calibrated for the current session, press F3 and try again
-		return
+Start_Haggling() {
+	if WinExist("Path of Exile") {
+		WinActivate
 	}
+	Inventory_Ensure_Tujen()
+	Sleep, 50
+
 	coins := Coinage_Read() + 1
 	Loop, %coins% {
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
-		stock := Stock_Read()
+		if (A_Index == 1 || Mod(A_Index, 3) == 0) {
+			stock := Stock_Read()
 
-		if (stock.LESSER < 300) {
-			MsgBox % "Not enough lesser currency to continue: " stock.LESSER
-			break
-		}
-		if (stock.GREATER < 300) {
-			MsgBox % "Not enough greater currency to continue: " stock.GREATER
-			break
-		}
-		if (stock.GRAND < 300) {
-			MsgBox % "Not enough grand currency to continue: " stock.GRAND
-			break
-		}
-		if (stock.EXCEPTIONAL < 300) {
-			MsgBox % "Not enough exceptional currency to continue: " stock.EXCEPTIONAL
-			break
+			if (stock.LESSER < 300) {
+				MsgBox % "Not enough lesser currency to continue: " stock.LESSER
+				break
+			}
+			if (stock.GREATER < 300) {
+				MsgBox % "Not enough greater currency to continue: " stock.GREATER
+				break
+			}
+			if (stock.GRAND < 300) {
+				MsgBox % "Not enough grand currency to continue: " stock.GRAND
+				break
+			}
+			if (stock.EXCEPTIONAL < 300) {
+				MsgBox % "Not enough exceptional currency to continue: " stock.EXCEPTIONAL
+				break
+			}
 		}
 
 		refreshItemPositions := ProcessWindow(stock)
@@ -252,31 +218,44 @@ F1::
 			Sleep, 400
 			continue
 		}
-		if (Mod(A_Index, INVENTORY_EMPTY_AFTER_WINDOWS) == 0) {
+		; TODO: Integrate "10" as a slider
+		if (Mod(A_Index, 10) == 0) {
 			Inventory_Empty_Perform_Sequence()
 		}
 		if (coins - A_Index > 0) {
+			if (!WinActive("Path of Exile") || ShouldBreak()) {
+				break
+			}
 			Trade_Refresh()
 		}
 	}
-	if (WinActive("Path of Exile") && !ShouldBreak()) {
-		Inventory_Empty_Perform_Sequence()
-	}
-	IS_CALIBRATED := false
 	TT := TT()
 	TT.Font("S40 bold striceout underline, Arial")
 	TT.Show("Stopped...", TOOLTIP_2_X, TOOLTIP_2_Y)
 	Sleep, 1000
 	TT.Hide()
+}
+
+F1::
+	Start_Haggling()
 return
 
+^F2::
+	FindText().Gui("Show")
+return
 F2::
-	if (UI_IsOnHaggleWindow()) {
-		MsgBox, Yes
-	}
-	else {
-		MsgBox, No
-	}
+
+
+	; ok:=FindText(X:="wait", Y:=3, 0,0,0,0,0,0,Text)    ; Wait 3 seconds for appear
+	; ok:=FindText(X:="wait0", Y:=-1, 0,0,0,0,0,0,Text)  ; Wait indefinitely for disappear
+
+		
+	; if (UI_IsOnHaggleWindow()) {
+	; 	MsgBox, Yes
+	; }
+	; else {
+	; 	MsgBox, No
+	; }
 return
 
 F3::
@@ -304,23 +283,10 @@ F3::
 
 	Inventory_Open_Tujen()
     Sleep, 200
-
-	; Coord_Echo()
 	
 return
 
 F4::
-	; bmpHaystack := Gdip_BitmapFromScreen(1)
-	; path := A_ScriptDir . "\Lib\UI\artifact_large_sample_grand.png"
-	; bmpNeedle := Gdip_CreateBitmapFromFile(path)
-	; RET := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LST, 0, 0, 0, 0, 2, 0xFFFFFF, 2, 1)
-	; Gdip_DisposeImage(bmpNeedle)
-	; Gdip_DisposeImage(bmpHaystack)
-	; MsgBox % LST
-	; v := Offer_Read()
-	; MsgBox % v
-	; return
-
 	item := Item_GetInfo()
 	price := Item_GetAlternativeHagglePrice2()
 	
@@ -331,7 +297,7 @@ F4::
 	TTF.Font("S40 bold striceout underline, Arial")
 	
 	symb := item.Value > price.Total ? ">" : "<"
-	TTF.Show(Round(item.Value, 1) "c " symb " " Round(price.Total, 1) "c" addLimit, 1020, 155)
+	TTF.Show(Round(item.Value, 1) "c " symb " " Round(price.Total, 1) "c" addLimit, 1020, 0)
 	Sleep, 5000
 	TTF.Hide()
 return
