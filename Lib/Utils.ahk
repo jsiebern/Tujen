@@ -165,13 +165,13 @@ Item_GetAlternativeHagglePrice2(ResetMousePosition = true) {
     
     bmpHaystack := Gdip_BitmapFromScreen(1)
 
-    if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_LESSER_ARTIFACT)) {
+    if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_LESSER_ARTIFACT, 1, 0)) {
         CType := "LESSER"
-	} else if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_GREATER_ARTIFACT, 1)) {
+	} else if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_GREATER_ARTIFACT, 0, 0)) {
         CType := "GREATER"
-    } else if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_GRAND_ARTIFACT, 1)) {
+    } else if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_GRAND_ARTIFACT, 0, 0)) {
         CType := "GRAND"
-    } else if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_EXCEPTIONAL_ARTIFACT, 1)) {
+    } else if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_EXCEPTIONAL_ARTIFACT, 0, 0)) {
         CType := "EXCEPTIONAL"
     } else {
         return false

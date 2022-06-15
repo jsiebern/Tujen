@@ -13,6 +13,7 @@ SetWorkingDir, %A_ScriptDir%
 #include Lib\UI.ahk
 #include Tujen_Functions.ahk
 #include Lib\Inventory.ahk
+#include Lib\Haggle.ahk
 
 #include TT.ahk
 
@@ -140,41 +141,59 @@ ProcessWindow(stock) {
 	TT.Title("Window Value", A_ScriptDir . "\Currencies\Chaos Orb.png", "")
 	TT.Font("S40 bold striceout underline, Arial")
 	TT.Show("0c", TOOLTIP_1_X, TOOLTIP_1_Y)
-	
-	Move_Initial()
-	Loop, 2 {
+
+	positions := Haggle_Get_Positions()
+	For Index, Position In positions {
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
-		Loop, 11 {
-			if (!WinActive("Path of Exile") || ShouldBreak()) {
-				break
-			}
-			MouseGetPos, STORE_X, STORE_Y
-			itemValue := Haggle(windowId, stock)
-			if (itemValue < 0) {
-				break
-			}
-			else if (itemValue == 99999) {
-				return true
-			}
-			windowValue := windowValue + itemValue
-			TT.Text(Round(windowValue, 1) "c")
-			Sleep, 10
-			MouseMove, STORE_X, STORE_Y, MOVE_SPEED
-			Move_Down()
+		MouseMove, Position.X, Position.Y, MOVE_SPEED
+		itemValue := Haggle(windowId, stock)
+		if (itemValue < 0) {
+			break
 		}
-		Sleep, 50
-		if (A_Index < 2) {
-			Move_NextRow()
+		else if (itemValue == 99999) {
+			return true
 		}
+		windowValue := windowValue + itemValue
+		TT.Text(Round(windowValue, 1) "c")
+		Sleep, 10
 	}
+	
+	; Move_Initial()
+	; Loop, 2 {
+	; 	if (!WinActive("Path of Exile") || ShouldBreak()) {
+	; 		break
+	; 	}
+	; 	Loop, 11 {
+	; 		if (!WinActive("Path of Exile") || ShouldBreak()) {
+	; 			break
+	; 		}
+	; 		MouseGetPos, STORE_X, STORE_Y
+	; 		itemValue := Haggle(windowId, stock)
+	; 		if (itemValue < 0) {
+	; 			break
+	; 		}
+	; 		else if (itemValue == 99999) {
+	; 			return true
+	; 		}
+	; 		windowValue := windowValue + itemValue
+	; 		TT.Text(Round(windowValue, 1) "c")
+	; 		Sleep, 10
+	; 		MouseMove, STORE_X, STORE_Y, MOVE_SPEED
+	; 		Move_Down()
+	; 	}
+	; 	Sleep, 50
+	; 	if (A_Index < 2) {
+	; 		Move_NextRow()
+	; 	}
+	; }
 	TT.Hide()
 	; T_Csv_Save()
 	return false
 }
-
 Start_Haggling() {
+	global EMPTY_INVENTORY_AFTER
 	if WinExist("Path of Exile") {
 		WinActivate
 	}
@@ -242,16 +261,88 @@ return
 F2::
 
 
-	; ok:=FindText(X:="wait", Y:=3, 0,0,0,0,0,0,Text)    ; Wait 3 seconds for appear
-	; ok:=FindText(X:="wait0", Y:=-1, 0,0,0,0,0,0,Text)  ; Wait indefinitely for disappear
+;	FindText().ScreenShot()
+	;ignoreText := "|<Chaos Orb>*105$35.3kTw0060Ds0080zk00M3zU00k7z001UDy0030zw0S60zs7w61zrzsCtzzzqzzzzzzzzzzzzzjyrrryDw03bwTs1YD0Tk30S1zU00s1z001l3y001a7wD03wzwC+DzzzxMTzzzvvzzzwTzwTzESzwHy0w7tzxVs7y7zzsDk7sTzzbzkTwzzzzjVzzzzC|<>*106$31.Y0300L00E0Ck0707c00lXy00Dtz001qzk00Dzs003zq00Ttx60Tw311zy0Uzxz0FzznUDzwzk3zzDs0rzzw01zzyA1zzzA0zzzW3Tzzk1rzzt7zzzDlyzzyTzzzzTzzzzzzvzDrzzz7uzzzXxzzznyzzzzzU"
+	;FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, ignoreText, 0, 2)
+	;MsgBox % X "`r`n" Y
 
-		
-	; if (UI_IsOnHaggleWindow()) {
-	; 	MsgBox, Yes
-	; }
-	; else {
-	; 	MsgBox, No
-	; }
+	positions := Haggle_Get_Positions()
+	MsgBox % positions.Count()
+	return
+	Str := ""
+	For Index, Value In positions
+		{
+		Str .= "," . Value.X . "/" . Value.Y
+		}
+	Str := LTrim(Str, ",")
+	MsgBox % Str
+	return
+
+	FindText().Screenshot()
+
+	eColors := []
+	For C, GridX in HaggleGridX {
+        For R, GridY in HaggleGridY {
+        	PointColor := FindText().GetColor(GridX,GridY)
+			if !(indexOf(PointColor, EMPTY_COLORS_HAGGLE_WINDOW)) {
+				MouseMove, GridX + Round((70*Base_ScreenFactor)/2), GridY - Round((70*Base_ScreenFactor)/2), MOVE_SPEED
+				Sleep, 10
+				eColors.Push(PointColor)
+			}
+		}
+	}
+
+	return
+
+
+
+	eColors := []
+    if WinExist("Path of Exile") {
+		WinActivate
+	}
+
+    FindText().ScreenShot()
+    ; Loop through the whole grid, and add unknown colors to the lists
+    For c, GridX in HaggleGridX  {
+        For r, GridY in HaggleGridY
+        {
+            PointColor := FindText().GetColor(GridX,GridY)
+
+            if !(indexOf(PointColor, eColors)){
+                ; We dont have this Empty color already
+                eColors.Push(PointColor)
+            }
+        }
+    }
+
+    strToSave := hexArrToStr(eColors)
+	IniWrite % strToSave, % INI_FILE, OtherValues, EMPTY_COLORS_HAGGLE_WINDOW
+	MsgBox % strToSave
+
+	FindText().MouseTip(HaggleGridX[10],HaggleGridY[10],1,1,1)
+
+	return
+
+
+
+
+	refColor := FindText().GetColor(HaggleGridX[7],HaggleGridY[1] * Base_ScreenFactor)
+	FindText().MouseTip(HaggleGridX[12],HaggleGridY[1],1,1,1)
+	; MsgBox % refColor
+	return
+
+	i := 0
+	For C, GridX in HaggleGridX {
+        For R, GridY in HaggleGridY {
+        	PointColor := FindText().GetColor(GridX,GridY)
+			if (PointColor != refColor) {
+				i := i + 1
+				;MouseMove, GridX + 70/2, GridY - 70/2, MOVE_SPEED
+				;Sleep, 10
+			}
+		}
+	}
+	MsgBox % i
 return
 
 

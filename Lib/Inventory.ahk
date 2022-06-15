@@ -1,5 +1,5 @@
 Inventory_Loop_Empty() {
-    global InventoryGridX, InventoryGridY, MOVE_SPEED, CELL_SIZE
+    global InventoryGridX, InventoryGridY, EMPTY_COLORS, MOVE_SPEED, CELL_SIZE
 
     GuiHideSettings()
 

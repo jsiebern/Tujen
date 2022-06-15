@@ -199,7 +199,7 @@ Gui_Test_COORD_EXCEPTIONAL_LEFT(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
 }
 
 Gui_Detect_EmptyColors(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
-    global InventoryGridX, InventoryGridY, EMPTY_COLORS, INI_FILE
+    global InventoryGridX, InventoryGridY, HaggleGridX, HaggleGridY, EMPTY_COLORS, EMPTY_COLORS_HAGGLE_WINDOW, INI_FILE
 
     GuiHideSettings()
 
@@ -221,12 +221,26 @@ Gui_Detect_EmptyColors(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
             }
         }
     }
-
     strToSave := hexArrToStr(EMPTY_COLORS)
-
     IniWrite % strToSave, % INI_FILE, OtherValues, EMPTY_COLORS
 
-    MsgBox, Empty inventory colors calibrated
+    EMPTY_COLORS_HAGGLE_WINDOW := []
+    ; Loop through the whole grid, and add unknown colors to the lists
+    For c, GridX in HaggleGridX  {
+        For r, GridY in HaggleGridY
+        {
+            PointColor := FindText().GetColor(GridX,GridY)
+
+            if !(indexOf(PointColor, EMPTY_COLORS_HAGGLE_WINDOW)) {
+                ; We dont have this Empty color already
+                EMPTY_COLORS_HAGGLE_WINDOW.Push(PointColor)
+            }
+        }
+    }
+    strToSave := hexArrToStr(EMPTY_COLORS_HAGGLE_WINDOW)
+    IniWrite % strToSave, % INI_FILE, OtherValues, EMPTY_COLORS_HAGGLE_WINDOW
+
+    MsgBox, Empty inventory/haggle window colors calibrated
 
     GuiShowSettings()
     return
