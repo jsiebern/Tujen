@@ -23,8 +23,6 @@ Inventory_Loop_Empty() {
 	}
 	Send, {Ctrl Up}
 
-	GuiShowSettings()
-
 	return true
 }
 

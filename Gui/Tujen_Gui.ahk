@@ -45,6 +45,10 @@ IniRead, PRICE_LESSER, % INI_FILE, Prices, PRICE_LESSER, 0.015
 IniRead, PRICE_GREATER, % INI_FILE, Prices, PRICE_GREATER, 0.025
 IniRead, PRICE_GRAND, % INI_FILE, Prices, PRICE_GRAND, 0.03
 IniRead, PRICE_EXCEPTIONAL, % INI_FILE, Prices, PRICE_EXCEPTIONAL, 0.08
+IniRead, ARTIFACT_ENABLED_LESSER, % INI_FILE, ArtifactsEnabled, ARTIFACT_ENABLED_LESSER, 1
+IniRead, ARTIFACT_ENABLED_GREATER, % INI_FILE, ArtifactsEnabled, ARTIFACT_ENABLED_GREATER, 1
+IniRead, ARTIFACT_ENABLED_GRAND, % INI_FILE, ArtifactsEnabled, ARTIFACT_ENABLED_GRAND, 1
+IniRead, ARTIFACT_ENABLED_EXCEPTIONAL, % INI_FILE, ArtifactsEnabled, ARTIFACT_ENABLED_EXCEPTIONAL, 1
 CURRENCY["EXCEPTIONAL"] := PRICE_EXCEPTIONAL
 CURRENCY["GRAND"] := PRICE_GRAND
 CURRENCY["GREATER"] := PRICE_GREATER
@@ -96,10 +100,6 @@ GuiHelper_AddCoordinateField(name, label, Y) {
     Gui Tujen:Add, Button, gGui_Capture_%name% x%xTestCoordinate% y%Y% w50 h%hControl%, Capture
     Gui Tujen:Add, Button, gGui_Test_%name% x%xTestCoordinate% y%yEditCoordinate% w50 h%hControl%, Test
     
-}
-
-GuiHelper_AddSingleCoordinateField(name, label, Y) {
-
 }
 
 ; ---------------------------------------------------------------------------------
@@ -175,32 +175,6 @@ yPos := yPos + hControl * 2 + spaceControl * 2
 ; ---------------------------------------------------------------------------------
 ; ---------------------------------------------------------------------------------
 
-; Prices
-
-yPos := yPos + 20
-boxHeight := 20 + 2 * (20 + 5) + 10
-Gui Tujen:Add, GroupBox, x7 y%yPos% w328 h%boxHeight% -Theme, Artifact Prices
-yPos := yPos + 20
-
-wEditCoordinate := wEdit / 2 - spaceControl * 2
-xEditCoordinate := xEdit + wEditCoordinate + spaceControl
-yEditCoordinate := yPos + hControl + spaceControl
-xTestCoordinate := xTestButton - 10
-
-Gui Tujen:Add, Text, x%xLabel% y%yPos% w%wLabel% h%hControl% +0x200, Lesser
-Gui Tujen:Add, Edit, vPRICE_LESSER x%xEdit% y%yPos% w%wEditCoordinate% h%hControl%, % PRICE_LESSER
-Gui Tujen:Add, Edit, vPRICE_GREATER x%xEditCoordinate% y%yPos% w%wEditCoordinate% h%hControl%, % PRICE_GREATER
-Gui Tujen:Add, Text, x%xTestCoordinate% y%yPos% w50 h%hControl%, Greater
-Gui Tujen:Add, Text, x%xLabel% y%yEditCoordinate% w%wLabel% h%hControl% +0x200, Grand
-Gui Tujen:Add, Edit, vPRICE_GRAND x%xEdit% y%yEditCoordinate% w%wEditCoordinate% h%hControl%, % PRICE_GRAND
-Gui Tujen:Add, Edit, vPRICE_EXCEPTIONAL x%xEditCoordinate% y%yEditCoordinate% w%wEditCoordinate% h%hControl%, % PRICE_EXCEPTIONAL
-Gui Tujen:Add, Text, x%xTestCoordinate% y%yEditCoordinate% w50 h%hControl%, Exceptional
-yPos := yPos + hControl * 2 + spaceControl * 2
-
-; ---------------------------------------------------------------------------------
-; ---------------------------------------------------------------------------------
-; ---------------------------------------------------------------------------------
-
 ; Other values
 
 yPos := yPos + 20
@@ -228,14 +202,68 @@ Gui Tujen:Add, Button, gGui_Detect_EmptyColors x119 y%yPos% w105 h20, Calibrate 
 Gui Tujen:Add, Button, gGui_SaveValues x225 y%yPos% w111 h20, Save Values
 yPos := yPos + 30
 
+yPosMax := yPos
+
+; ---------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------
+
+; Artifact types
+
+yPos := 45
+xPos := 7 + 328 + 7
+boxHeight := 20 + 1 * (20 + 10) + 20
+Gui Tujen:Add, GroupBox, x%xPos% y%yPos% w328 h%boxHeight% -Theme, Artifact types
+xPos := xPos + 10
+yPos := yPos + 20
+
+Gui Tujen:Add, CheckBox, x%xPos% y%yPos% vARTIFACT_ENABLED_LESSER Checked%ARTIFACT_ENABLED_LESSER%, Lesser artifact
+txPos := (xPos + xLabel + xEdit)
+Gui Tujen:Add, CheckBox, x%txPos% y%yPos% vARTIFACT_ENABLED_GREATER Checked%ARTIFACT_ENABLED_GREATER%, Greater artifact
+yPos := yPos + hControl + spaceControl
+Gui Tujen:Add, CheckBox, x%xPos% y%yPos% vARTIFACT_ENABLED_GRAND Checked%ARTIFACT_ENABLED_GRAND%, Grand artifact
+Gui Tujen:Add, CheckBox, x%txPos% y%yPos% vARTIFACT_ENABLED_EXCEPTIONAL Checked%ARTIFACT_ENABLED_EXCEPTIONAL%, Exceptional artifact
+
+yPos := yPos + 10
+xPos := xPos - 10
+
+; ---------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------
+
+; Prices
+
+yPos := yPos + 20
+boxHeight := 20 + 2 * (20 + 5) + 10
+Gui Tujen:Add, GroupBox, x%xPos% y%yPos% w328 h%boxHeight% -Theme, Artifact Prices
+yPos := yPos + 20
+
+xPos := xPos + 10
+
+wEditCoordinate := wEdit / 2 - spaceControl * 2
+xEditCoordinate := xPos + wEditCoordinate + spaceControl
+yEditCoordinate := yPos + hControl + spaceControl
+xTestCoordinate := xEditCoordinate + wEditCoordinate + 15
+xEditCoordinate2 := xTestCoordinate + 70
+
+Gui Tujen:Add, Text, x%xPos% y%yPos% w%wLabel% h%hControl% +0x200, Lesser
+Gui Tujen:Add, Edit, vPRICE_LESSER x%xEditCoordinate% y%yPos% w%wEditCoordinate% h%hControl%, % PRICE_LESSER
+Gui Tujen:Add, Edit, vPRICE_GREATER x%xEditCoordinate2% y%yPos% w%wEditCoordinate% h%hControl%, % PRICE_GREATER
+Gui Tujen:Add, Text, x%xTestCoordinate% y%yPos% w60 h%hControl%, Greater
+Gui Tujen:Add, Text, x%xPos% y%yEditCoordinate% w%wLabel% h%hControl% +0x200, Grand
+Gui Tujen:Add, Edit, vPRICE_GRAND x%xEditCoordinate% y%yEditCoordinate% w%wEditCoordinate% h%hControl%, % PRICE_GRAND
+Gui Tujen:Add, Edit, vPRICE_EXCEPTIONAL x%xEditCoordinate2% y%yEditCoordinate% w%wEditCoordinate% h%hControl%, % PRICE_EXCEPTIONAL
+Gui Tujen:Add, Text, x%xTestCoordinate% y%yEditCoordinate% w60 h%hControl%, Exceptional
+yPos := yPos + hControl * 2 + spaceControl * 2
+
 ; ---------------------------------------------------------------------------------
 ; ---------------------------------------------------------------------------------
 ; ---------------------------------------------------------------------------------
 
 GuiShowSettings() {
-    global yPos, xPosition
-    xPosition := A_ScreenWidth - 350
-    Gui Tujen:Show, w340 h%yPos% x%xPosition% y10, Tujen Haggler
+    global yPosMax, xPosition
+    xPosition := A_ScreenWidth - 350 - 340
+    Gui Tujen:Show, w680 h%yPosMax% x%xPosition% y10, Tujen Haggler
     if WinExist("Path of Exile") {
 		WinActivate
 	}
@@ -250,5 +278,8 @@ GuiHideSettings() {
 }
 GuiShowSettings()
 
-;GuiClose:
-;    ExitApp
+TujenGuiClose(GuiHwnd) {  ; Declaring this parameter is optional.
+    MsgBox 4,, Do you want to quit?
+    IfMsgBox Yes
+        ExitApp
+}
