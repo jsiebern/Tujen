@@ -239,9 +239,6 @@ F1::
 	Start_Haggling()
 return
 
-^F2::
-	FindText().Gui("Show")
-return
 F2::
 
 
@@ -257,33 +254,6 @@ F2::
 	; }
 return
 
-F3::
-	MsgBox, Calibration: Position chest and Tujen so the character does not have to move to reach both
-
-	; MsgBox, 4, , Would you like to use the alternative price detection mode?
-	; IfMsgBox, Yes
-	; 	USE_ALTERNATE_PRICE_DETECTION := true
-
-	MsgBox, Mouse over Stash and press Enter
-	MouseGetPos, X, Y
-	CHEST_X := X
-	CHEST_Y := Y
-
-	MsgBox, Mouse over Tujen and press Enter
-	MouseGetPos, X, Y
-	TUJEN_X := X
-	TUJEN_Y := Y
-
-	InputBox, N, Empty inventory after how many windows?, Default is 10
-	INVENTORY_EMPTY_AFTER_WINDOWS := N
-
-	IS_CALIBRATED := true
-	MsgBox, Calibration complete - press F1 to start haggling
-
-	Inventory_Open_Tujen()
-    Sleep, 200
-	
-return
 
 F4::
 	item := Item_GetInfo()
@@ -299,30 +269,6 @@ F4::
 	TTF.Show(Round(item.Value, 1) "c " symb " " Round(price.Total, 1) "c" addLimit, 1020, 0)
 	Sleep, 5000
 	TTF.Hide()
-return
-
-F6::
-	path := A_ScriptDir . "\Lib\UI\haggle_window_open.png"
-	xStart := 589
-    xEnd := 589 + 300
-    yStart := 256
-    yEnd := 256 + 60
-
-	pBitmap := Gdip_BitmapFromScreen(xStart "|" yStart "|" xEnd - xStart "|" yEnd - yStart)
-    Gdip_SaveBitmapToFile(pBitmap, path, 100)
-    Gdip_DisposeImage(pBitmap)
-
-	return
-
-    bmpNeedle := Gdip_CreateBitmapFromFile(path)
-
-	bmpHaystack := Gdip_BitmapFromScreen(1)
-
-	RET := Gdip_ImageSearch(bmpHaystack,bmpNeedle,LIST,0,0,0,0,0,0xFFFFFF,1,0)
-	Gdip_DisposeImage(bmpHaystack)
-	Gdip_DisposeImage(bmpNeedle)
-
-	MsgBox, % "Returned: " RET "`n`n" LIST
 return
 
 GdipShutdown:
