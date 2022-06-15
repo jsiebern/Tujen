@@ -1,22 +1,29 @@
 Inventory_Loop_Empty() {
     global InventoryGridX, InventoryGridY, MOVE_SPEED, CELL_SIZE
 
-    Send, {Ctrl Down}
+    GuiHideSettings()
+
+	FindText().ScreenShot()
+	Send, {Ctrl Down}
     For C, GridX in InventoryGridX {
         For R, GridY in InventoryGridY {
-            MouseMove, GridX + CELL_SIZE / 2, GridY - CELL_SIZE / 2, MOVE_SPEED
-            Sleep, 10
-            Click
-
-            if (!WinActive("Path of Exile") || ShouldBreak()) {
+        	PointColor := FindText().GetColor(GridX,GridY)
+			if !(indexOf(PointColor, EMPTY_COLORS)) {
+				MouseMove, GridX + CELL_SIZE/2, GridY - CELL_SIZE/2, MOVE_SPEED
+				Sleep, 10
+				Click
+			}
+			if (!WinActive("Path of Exile") || ShouldBreak()) {
                 break
             }
-        }
-        if (!WinActive("Path of Exile") || ShouldBreak()) {
+		}
+		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
-    }
-    Send, {Ctrl Up}
+	}
+	Send, {Ctrl Up}
+
+	GuiShowSettings()
 
 	return true
 }
@@ -69,8 +76,6 @@ Inventory_Open_Tujen_HaggleMenu() {
 }
 
 Inventory_Empty_Perform_Sequence() {
-    GuiHideSettings()
-    Sleep, 200
     Inventory_Exit()
     Sleep, 200
     Inventory_Exit()
@@ -83,5 +88,4 @@ Inventory_Empty_Perform_Sequence() {
 	Sleep, 400
 	Inventory_Open_Tujen()
     Sleep, 400
-    GuiShowSettings()
 }

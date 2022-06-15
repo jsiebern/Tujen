@@ -1,4 +1,5 @@
 #include Gui\GetRange.ahk
+#include Gui\Tujen_Gui_Helpers.ahk
 #include Gui\Tujen_Gui_Functions.ahk
 
 IniRead, STR_TUJEN_CHARACTER, % INI_FILE, FindTextStrings, STR_TUJEN_CHARACTER, % " "
@@ -37,6 +38,18 @@ IniRead, COORD_EXCEPTIONAL_LEFT_Y, % INI_FILE, CapturedCoordinates, COORD_EXCEPT
 IniRead, COORD_EXCEPTIONAL_LEFT_W, % INI_FILE, CapturedCoordinates, COORD_EXCEPTIONAL_LEFT_W, % " "
 IniRead, COORD_EXCEPTIONAL_LEFT_H, % INI_FILE, CapturedCoordinates, COORD_EXCEPTIONAL_LEFT_H, % " "
 IniRead, MOVE_SPEED, % INI_FILE, OtherValues, MOVE_SPEED, 3
+IniRead, EMPTY_COLORS, % INI_FILE, OtherValues, EMPTY_COLORS, 0x000100,0x020402,0x000000,0x020302,0x010101,0x010201,0x060906,0x050905,0x030303,0x020202
+IniRead, EMPTY_INVENTORY_AFTER, % INI_FILE, OtherValues, EMPTY_INVENTORY_AFTER, 15
+IniRead, PRICE_LESSER, % INI_FILE, Prices, PRICE_LESSER, 0.015
+IniRead, PRICE_GREATER, % INI_FILE, Prices, PRICE_GREATER, 0.025
+IniRead, PRICE_GRAND, % INI_FILE, Prices, PRICE_GRAND, 0.03
+IniRead, PRICE_EXCEPTIONAL, % INI_FILE, Prices, PRICE_EXCEPTIONAL, 0.08
+CURRENCY["EXCEPTIONAL"] := PRICE_EXCEPTIONAL
+CURRENCY["GRAND"] := PRICE_GRAND
+CURRENCY["GREATER"] := PRICE_GREATER
+CURRENCY["LESSER"] := PRICE_LESSER
+
+EMPTY_COLORS := StrSplit(EMPTY_COLORS, ",")
 
 Gui, Tujen:+AlwaysOnTop +ToolWindow
 
@@ -160,15 +173,45 @@ yPos := yPos + hControl * 2 + spaceControl * 2
 ; ---------------------------------------------------------------------------------
 ; ---------------------------------------------------------------------------------
 
+; Prices
+
+yPos := yPos + 20
+boxHeight := 20 + 2 * (20 + 5) + 10
+Gui Tujen:Add, GroupBox, x7 y%yPos% w328 h%boxHeight% -Theme, Artifact Prices
+yPos := yPos + 20
+
+wEditCoordinate := wEdit / 2 - spaceControl * 2
+xEditCoordinate := xEdit + wEditCoordinate + spaceControl
+yEditCoordinate := yPos + hControl + spaceControl
+xTestCoordinate := xTestButton - 10
+
+Gui Tujen:Add, Text, x%xLabel% y%yPos% w%wLabel% h%hControl% +0x200, Lesser
+Gui Tujen:Add, Edit, vPRICE_LESSER x%xEdit% y%yPos% w%wEditCoordinate% h%hControl%, % PRICE_LESSER
+Gui Tujen:Add, Edit, vPRICE_GREATER x%xEditCoordinate% y%yPos% w%wEditCoordinate% h%hControl%, % PRICE_GREATER
+Gui Tujen:Add, Text, x%xTestCoordinate% y%yPos% w50 h%hControl%, Greater
+Gui Tujen:Add, Text, x%xLabel% y%yEditCoordinate% w%wLabel% h%hControl% +0x200, Grand
+Gui Tujen:Add, Edit, vPRICE_GRAND x%xEdit% y%yEditCoordinate% w%wEditCoordinate% h%hControl%, % PRICE_GRAND
+Gui Tujen:Add, Edit, vPRICE_EXCEPTIONAL x%xEditCoordinate% y%yEditCoordinate% w%wEditCoordinate% h%hControl%, % PRICE_EXCEPTIONAL
+Gui Tujen:Add, Text, x%xTestCoordinate% y%yEditCoordinate% w50 h%hControl%, Exceptional
+yPos := yPos + hControl * 2 + spaceControl * 2
+
+; ---------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------
+
 ; Other values
 
 yPos := yPos + 20
-boxHeight := 20 + 1 * (20 + 10) + 10
+boxHeight := 20 + 2 * (20 + 5) + 10
 Gui Tujen:Add, GroupBox, x7 y%yPos% w328 h%boxHeight% -Theme, Other values
 yPos := yPos + 20
 
 Gui Tujen:Add, Text, y%yPos% x%xLabel%, Move speed
 Gui Tujen:Add, Slider, vMOVE_SPEED y%yPos% x%xEdit% w%wEdit% Range0-10 TickInterval1, % MOVE_SPEED
+yPos := yPos + hControl + spaceControl
+
+Gui Tujen:Add, Text, y%yPos% x%xLabel%, Empty inventory after
+Gui Tujen:Add, Slider, vEMPTY_INVENTORY_AFTER y%yPos% x%xEdit% w%wEdit% Range1-20 TickInterval1, % EMPTY_INVENTORY_AFTER
 yPos := yPos + hControl + spaceControl
 
 ; ---------------------------------------------------------------------------------
@@ -179,6 +222,7 @@ yPos := yPos + hControl + spaceControl
 
 yPos := yPos + 20
 Gui Tujen:Add, Button, gGui_StartHaggling x7 y%yPos% w111 h20, Start Haggling
+Gui Tujen:Add, Button, gGui_Detect_EmptyColors x119 y%yPos% w105 h20, Calibrate Colors
 Gui Tujen:Add, Button, gGui_SaveValues x225 y%yPos% w111 h20, Save Values
 yPos := yPos + 30
 

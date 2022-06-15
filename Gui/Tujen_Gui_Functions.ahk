@@ -198,6 +198,40 @@ Gui_Test_COORD_EXCEPTIONAL_LEFT(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
     return
 }
 
+Gui_Detect_EmptyColors(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
+    global InventoryGridX, InventoryGridY, EMPTY_COLORS, INI_FILE
+
+    GuiHideSettings()
+
+    EMPTY_COLORS := []
+    if WinExist("Path of Exile") {
+		WinActivate
+	}
+
+    FindText().ScreenShot()
+    ; Loop through the whole grid, and add unknown colors to the lists
+    For c, GridX in InventoryGridX  {
+        For r, GridY in InventoryGridY
+        {
+            PointColor := FindText().GetColor(GridX,GridY)
+
+            if !(indexOf(PointColor, EMPTY_COLORS)){
+                ; We dont have this Empty color already
+                EMPTY_COLORS.Push(PointColor)
+            }
+        }
+    }
+
+    strToSave := hexArrToStr(EMPTY_COLORS)
+
+    IniWrite % strToSave, % INI_FILE, OtherValues, EMPTY_COLORS
+
+    MsgBox, Empty inventory colors calibrated
+
+    GuiShowSettings()
+    return
+}
+
 Gui_SaveValues(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
     Gui Tujen:Submit, NoHide
 
@@ -220,6 +254,8 @@ Gui_SaveValues(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
     global COORD_GRAND_LEFT_X, COORD_GRAND_LEFT_Y, COORD_GRAND_LEFT_W, COORD_GRAND_LEFT_H
     global COORD_EXCEPTIONAL_LEFT_X, COORD_EXCEPTIONAL_LEFT_Y, COORD_EXCEPTIONAL_LEFT_W, COORD_EXCEPTIONAL_LEFT_H
     global MOVE_SPEED
+    global EMPTY_INVENTORY_AFTER
+    global PRICE_EXCEPTIONAL, PRICE_GRAND, PRICE_GREATER, PRICE_LESSER
 
     Gui Tujen:Submit, NoHide
     
@@ -259,6 +295,16 @@ Gui_SaveValues(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
     IniWrite % COORD_EXCEPTIONAL_LEFT_W, % INI_FILE, CapturedCoordinates, COORD_EXCEPTIONAL_LEFT_W
     IniWrite % COORD_EXCEPTIONAL_LEFT_H, % INI_FILE, CapturedCoordinates, COORD_EXCEPTIONAL_LEFT_H
     IniWrite % MOVE_SPEED, % INI_FILE, OtherValues, MOVE_SPEED
+    IniWrite % EMPTY_INVENTORY_AFTER, % INI_FILE, OtherValues, EMPTY_INVENTORY_AFTER
+    IniWrite % PRICE_LESSER, % INI_FILE, Prices, PRICE_LESSER
+    IniWrite % PRICE_GREATER, % INI_FILE, Prices, PRICE_GREATER
+    IniWrite % PRICE_GRAND, % INI_FILE, Prices, PRICE_GRAND
+    IniWrite % PRICE_EXCEPTIONAL, % INI_FILE, Prices, PRICE_EXCEPTIONAL
+
+    CURRENCY["EXCEPTIONAL"] := PRICE_EXCEPTIONAL
+    CURRENCY["GRAND"] := PRICE_GRAND
+    CURRENCY["GREATER"] := PRICE_GREATER
+    CURRENCY["LESSER"] := PRICE_LESSER
 
     MsgBox, Values Saved
     return

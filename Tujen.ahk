@@ -2,13 +2,13 @@
 ;#IfWinActive, Path of Exile
 SetWorkingDir, %A_ScriptDir%
 
+#include Lib\Prices.ahk
 #include Gdip\Gdip.ahk
 #include Gdip\Gdip_ImageSearch.ahk
 #Include Lib\FindText\FindText.ahk
 #include Lib\Coordinates.ahk
 #include Gui\Tujen_Gui.ahk
 #include CSV.ahk
-#include Lib\Prices.ahk
 #include Lib\Utils.ahk
 #include Lib\UI.ahk
 #include Tujen_Functions.ahk
@@ -218,8 +218,7 @@ Start_Haggling() {
 			Sleep, 400
 			continue
 		}
-		; TODO: Integrate "10" as a slider
-		if (Mod(A_Index, 10) == 0) {
+		if (Mod(A_Index, EMPTY_INVENTORY_AFTER) == 0) {
 			Inventory_Empty_Perform_Sequence()
 		}
 		if (coins - A_Index > 0) {
