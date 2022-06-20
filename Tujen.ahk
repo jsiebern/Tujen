@@ -85,28 +85,11 @@ Haggle(guiStats) {
 		price := Item_GetHagglePrice()
 		guiStats.ListModify(item.Name, item.Num, item.Value, price.CURRENCY, price.Value, price.Total, "")
 
-		artifactIsDisabled := false
-		if (price.Currency == "LESSER" && !ARTIFACT_ENABLED_LESSER) {
-			artifactIsDisabled := true
-		}
-		if (price.Currency == "GREATER" && !ARTIFACT_ENABLED_GREATER) {
-			artifactIsDisabled := true
-		}
-		if (price.Currency == "GRAND" && !ARTIFACT_ENABLED_GRAND) {
-			artifactIsDisabled := true
-		}
-		if (price.Currency == "EXCEPTIONAL" && !ARTIFACT_ENABLED_EXCEPTIONAL) {
-			artifactIsDisabled := true
-		}
-
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			return -1
 		}
-		if (price.Total <= 0) {
-			return 99999
-		}
 
-		if (item.Value > (price.Total * 0.8) && !artifactIsDisabled) {
+		if (item.Value > (price.Total * 0.8) && !price.IsDisabled) {
 			guiStats.ListModify(item.Name, item.Num, item.Value, price.CURRENCY, price.Value, price.Total, "BUY")
 			BuyItem()
 			if (item.Name == "Prime Chaotic Resonator") {
@@ -115,18 +98,12 @@ Haggle(guiStats) {
 			return item.Value
 		}
 		else {
-			if (artifactIsDisabled) {
-				guiStats.ListModify(item.Name, item.Num, item.Value, "", "", "", "ARTIFACT DISABLED")
+			if (price.IsDisabled) {
+				guiStats.ListModify(item.Name, item.Num, item.Value, "", "", "", "DISABLED")
 			} else {
 				guiStats.ListModify(item.Name, item.Num, item.Value, price.CURRENCY, price.Value, price.Total, "DISCARD")
 			}
-			if (UI_IsOnHaggleWindow()) {
-				Sleep, 100
-				if (UI_IsOnHaggleWindow()) {
-					Send, {Esc}
-				}
-			}
-			TT.Hide()
+			Send, {Esc}
 			return 0
 		}
 	}
@@ -183,25 +160,23 @@ Start_Haggling() {
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
-		if (A_Index == 1 || Mod(A_Index, 5) == 0) {
-			stock := Stock_Read()
+		stock := Stock_Read()
 
-			if (ARTIFACT_ENABLED_LESSER && stock.LESSER < 300) {
-				MsgBox % "Not enough lesser currency to continue: " stock.LESSER
-				break
-			}
-			if (ARTIFACT_ENABLED_GREATER && stock.GREATER < 300) {
-				MsgBox % "Not enough greater currency to continue: " stock.GREATER
-				break
-			}
-			if (ARTIFACT_ENABLED_GRAND && stock.GRAND < 300) {
-				MsgBox % "Not enough grand currency to continue: " stock.GRAND
-				break
-			}
-			if (ARTIFACT_ENABLED_EXCEPTIONAL && stock.EXCEPTIONAL < 300) {
-				MsgBox % "Not enough exceptional currency to continue: " stock.EXCEPTIONAL
-				break
-			}
+		if (ARTIFACT_ENABLED_LESSER && stock.LESSER < 300) {
+			MsgBox % "Not enough lesser currency to continue: " stock.LESSER
+			break
+		}
+		if (ARTIFACT_ENABLED_GREATER && stock.GREATER < 300) {
+			MsgBox % "Not enough greater currency to continue: " stock.GREATER
+			break
+		}
+		if (ARTIFACT_ENABLED_GRAND && stock.GRAND < 300) {
+			MsgBox % "Not enough grand currency to continue: " stock.GRAND
+			break
+		}
+		if (ARTIFACT_ENABLED_EXCEPTIONAL && stock.EXCEPTIONAL < 300) {
+			MsgBox % "Not enough exceptional currency to continue: " stock.EXCEPTIONAL
+			break
 		}
 
 		refreshItemPositions := ProcessWindow()
@@ -234,18 +209,14 @@ F1::
 return
 
 F2::
-	k := "|<0>*48$12.y3w1lknsXsbs7s7s7s7s7l7l7X37UDszU|<1>*48$6.wU0stllllnXXXXXU|<2>*48$11.w7k766SDwTlzXyDwTlz7wTny040Q|<3>*48$10.sD0AsnXyDlyDkzVz7wTlz7sz3Uw7s|<4>*48$11.ztzXy7sDYy1wXn7CAQs00001yDwzlzXk|<5>*48$11.s1k7USTwzsTkDwTsTszlzXy7wTky7kTk|<6>*48$12.z1w0sQkzlzXzXD033X7V7V7V7X7X7b37UDtzU|<7>*47$11.U1030DwTlzXyDwzlz7yDsznz7wTtznzk|<8>*48$12.y3w1ssssksstsHs7w7k3n1bV7l7l7XX3U7szU|<9>*48$12.y3w1sklslsXsXsXsVkk0s1zlzVzXT70D0TnzU"
-    ok := FindText(X, Y, COORD_HAGGLE_PRICE_X, COORD_HAGGLE_PRICE_Y, COORD_HAGGLE_PRICE_X+COORD_HAGGLE_PRICE_W, COORD_HAGGLE_PRICE_Y+COORD_HAGGLE_PRICE_H, 0.15, 0.15, k, 1)
-	if (ocr := FindText().OCR(ok, 20, 20, 5)) {
-        MsgBox % ocr.text
-    }
-	return
+	positions := Haggle_Get_Positions()
+	MsgBox % positions.Length()
+	MsgBox % positions.Count()
 
-	s := Stock_Read()
-	MsgBox % s.LESSER
-	MsgBox % s.GREATER
-	MsgBox % s.GRAND
-	MsgBox % s.EXCEPTIONAL
+	guiStats := new Gui_Stats()
+	guiStats.Show()
+	guiStats.ListClear()
+	guiStats.SetWindowItems(positions.Count())
 	
 	
 return

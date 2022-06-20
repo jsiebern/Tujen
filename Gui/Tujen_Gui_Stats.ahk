@@ -11,6 +11,7 @@ class Gui_Stats {
 
     __New()
     {
+        this.Hide()
         Gui Stats:+AlwaysOnTop +ToolWindow
         Gui Stats:Default
         Gui Stats:Font, s20, Calibri
@@ -20,11 +21,11 @@ class Gui_Stats {
 
         Gui Stats:Font, s9, Calibri
 
-        Gui, Stats:Add, ListView, vLView AltSubmit -ReadOnly R15 x7 w440, Name|Value|Artifact|Price|Action
+        Gui, Stats:Add, ListView, vLView AltSubmit -ReadOnly R15 x7 w440, Name|Artifact|Value|Price|Action
         LV_ModifyCol(1, 150)
-        LV_ModifyCol(3, 100)
-        LV_ModifyCol(4, 80)
-        LV_ModifyCol(5, 60)
+        LV_ModifyCol(2, 100)
+        LV_ModifyCol(4, 60)
+        LV_ModifyCol(5, 80)
 
         ;this.ListClear()
     }
@@ -57,7 +58,7 @@ class Gui_Stats {
     ListAdd(Name, Num, Value, Currency, AskingNum, TotalPrice, Action)
     {
         Gui, Stats:ListView, LView
-        LV_Add("", Name, Round(Value, 1) . "c", AskingNum . " " . Currency, Round(TotalPrice, 1) . "c", Action)
+        LV_Add("", Name, AskingNum . " " . Currency, Round(Value, 1) . "c", Round(TotalPrice, 1) . "c", Action)
         if (Action == "BUY") {
             this.windowValue := this.windowValue + Value
             this.RefreshWindowText()
@@ -68,7 +69,7 @@ class Gui_Stats {
     {
         Gui, Stats:ListView, LView
         c := LV_GetCount()
-        LV_Modify(c, "", Name, Round(Value, 1) . "c", AskingNum . " " . Currency, Round(TotalPrice, 1) . "c", Action)
+        LV_Modify(c, "", Name, AskingNum . " " . Currency, Round(Value, 1) . "c", Round(TotalPrice, 1) . "c", Action)
         if (Action == "BUY") {
             this.windowValue := this.windowValue + Value
             this.RefreshWindowText()

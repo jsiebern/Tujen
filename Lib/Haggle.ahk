@@ -5,6 +5,9 @@ Haggle_Get_Positions() {
 
     positions := []
 	For C, GridX in HaggleGridX {
+        if (C > 4) {
+            continue
+        }
         For R, GridY in HaggleGridY {
         	PointColor := FindText().GetColor(GridX,GridY)
 			if !(indexOf(PointColor, EMPTY_COLORS_HAGGLE_WINDOW)) {

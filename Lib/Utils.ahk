@@ -159,6 +159,7 @@ Item_GetHagglePrice() {
 
 Item_GetAlternativeHagglePrice2(ResetMousePosition = true) {
     global CURRENCY, STR_LESSER_ARTIFACT, STR_GREATER_ARTIFACT, STR_GRAND_ARTIFACT, STR_EXCEPTIONAL_ARTIFACT, MOVE_SPEED
+    global ARTIFACT_ENABLED_LESSER, ARTIFACT_ENABLED_GREATER, ARTIFACT_ENABLED_GRAND, ARTIFACT_ENABLED_EXCEPTIONAL
 
     Click
     Sleep, 50
@@ -175,13 +176,32 @@ Item_GetAlternativeHagglePrice2(ResetMousePosition = true) {
         return false
     }
 
-    Value := Offer_Read()
+    artifactIsDisabled := false
+    if (CType == "LESSER" && !ARTIFACT_ENABLED_LESSER) {
+        artifactIsDisabled := true
+    }
+    if (CType == "GREATER" && !ARTIFACT_ENABLED_GREATER) {
+        artifactIsDisabled := true
+    }
+    if (CType == "GRAND" && !ARTIFACT_ENABLED_GRAND) {
+        artifactIsDisabled := true
+    }
+    if (CType == "EXCEPTIONAL" && !ARTIFACT_ENABLED_EXCEPTIONAL) {
+        artifactIsDisabled := true
+    }
+
+    if (!artifactIsDisabled) {
+        Value := Offer_Read()
+    }
+    else {
+        Value := 0
+    }
 
     if (ResetMousePosition) {
         Send, {Esc}
     }
 
-    return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value, AltMethod: true}
+    return {Value: Value, Currency: CType, Total: CURRENCY[CType] * Value, IsDisabled: artifactIsDisabled}
 }
 
 CleanNumberRead(result) {
