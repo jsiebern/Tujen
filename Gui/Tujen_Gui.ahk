@@ -1,6 +1,7 @@
 #include Gui\GetRange.ahk
 #include Gui\Tujen_Gui_Helpers.ahk
 #include Gui\Tujen_Gui_Functions.ahk
+#include Gui\Tujen_Gui_Stats.ahk
 
 IniRead, STR_TUJEN_CHARACTER, % INI_FILE, FindTextStrings, STR_TUJEN_CHARACTER, % " "
 IniRead, STR_HAGGLE_FOR_ITEMS, % INI_FILE, FindTextStrings, STR_HAGGLE_FOR_ITEMS, % " "

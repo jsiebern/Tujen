@@ -15,10 +15,6 @@ SetWorkingDir, %A_ScriptDir%
 #include Lib\Inventory.ahk
 #include Lib\Haggle.ahk
 
-#include TT.ahk
-
-TTF := TT()
-TTF_Hide := false
 STOP_SCRIPT := false
 pToken := Gdip_Startup()
 OnExit, GdipShutdown
@@ -47,10 +43,7 @@ ConfirmOffer() {
     return
 }
 
-BuyItem(offer, isExalted = false, AltMethod = false) {
-	if (!AltMethod) {
-		Click
-	}
+BuyItem() {
 	SubSequentOffers =
 	isFirstOffer := true
 	Loop {
@@ -78,7 +71,7 @@ BuyItem(offer, isExalted = false, AltMethod = false) {
 	return SubSequentOffers
 }
 
-Haggle(windowId, stock) {
+Haggle(guiStats) {
 	global ARTIFACT_ENABLED_LESSER, ARTIFACT_ENABLED_GREATER, ARTIFACT_ENABLED_GRAND, ARTIFACT_ENABLED_EXCEPTIONAL
 
 	Item := Item_GetInfo()
@@ -86,14 +79,12 @@ Haggle(windowId, stock) {
 		return -1
 	}
 
-	TT := TT()
-	iconPath := A_ScriptDir . "\Currencies\" . Item.Name . ".png"
-	TT.Title(item.Name, iconPath, "")
-	TT.Font("S40 bold striceout underline, Arial")
-	TT.Show(Round(Item.Value, 1) "c", 1020, 0)
+	guiStats.ListAdd(item.Name, item.Num, item.Value, "", "", "", "")
 
 	if (item.Value > 0) {
 		price := Item_GetHagglePrice()
+		guiStats.ListModify(item.Name, item.Num, item.Value, price.CURRENCY, price.Value, price.Total, "")
+
 		artifactIsDisabled := false
 		if (price.Currency == "LESSER" && !ARTIFACT_ENABLED_LESSER) {
 			artifactIsDisabled := true
@@ -109,29 +100,26 @@ Haggle(windowId, stock) {
 		}
 
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
-			TT.Hide()
 			return -1
 		}
 		if (price.Total <= 0) {
 			return 99999
 		}
-		
-		symb := item.Value > price.Total ? ">" : "<"
-		TT.Text(Round(Item.Value, 1) "c " symb " " Round(price.Total, 1) "c")
+
 		if (item.Value > (price.Total * 0.8) && !artifactIsDisabled) {
-			if (item.Value > price.Total * 3) {
-				offer := Ceil(price.Value * 0.6)
-			}
-			SubSequentOffers := BuyItem(offer, item.Name == "Exalted Orb", price.AltMethod == true)
-			; T_Csv_AddEntry(windowId, item.Name, "", item.Num, item.Value, price.Value, price.Currency, price.Total, offer, SubSequentOffers, Generate_DateTime())
-			TT.Hide()
+			guiStats.ListModify(item.Name, item.Num, item.Value, price.CURRENCY, price.Value, price.Total, "BUY")
+			BuyItem()
 			if (item.Name == "Prime Chaotic Resonator") {
 				return 99999
 			}
 			return item.Value
 		}
 		else {
-			; T_Csv_AddEntry(windowId, item.Name, "", item.Num, item.Value, price.Value, price.Currency, price.Total, "", "", Generate_DateTime())
+			if (artifactIsDisabled) {
+				guiStats.ListModify(item.Name, item.Num, item.Value, "", "", "", "ARTIFACT DISABLED")
+			} else {
+				guiStats.ListModify(item.Name, item.Num, item.Value, price.CURRENCY, price.Value, price.Total, "DISCARD")
+			}
 			if (UI_IsOnHaggleWindow()) {
 				Sleep, 100
 				if (UI_IsOnHaggleWindow()) {
@@ -142,39 +130,41 @@ Haggle(windowId, stock) {
 			return 0
 		}
 	}
-	TT.Hide()
+	else {
+		guiStats.ListModify(item.Name, item.Num, item.Value, "", "", "", "BLACKLISTED")
+	}
 	return 0
 }
 
-ProcessWindow(stock) {
-	global TOOLTIP_1_X, TOOLTIP_1_Y
-	windowId := T_Csv_NewWindow()
-	windowValue := 0
-
-	TT := TT("Color=0x008000 PARENT=77")
-	TT.Title("Window Value", A_ScriptDir . "\Currencies\Chaos Orb.png", "")
-	TT.Font("S40 bold striceout underline, Arial")
-	TT.Show("0c", TOOLTIP_1_X, TOOLTIP_1_Y)
+ProcessWindow() {
+	guiStats := new Gui_Stats()
+	guiStats.ListClear()
+	guiStats.Show()
 
 	positions := Haggle_Get_Positions()
+
+	guiStats.SetWindowItems(positions.Count())
+
 	For Index, Position In positions {
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
 		MouseMove, Position.X, Position.Y, MOVE_SPEED
-		itemValue := Haggle(windowId, stock)
+		itemValue := Haggle(guiStats)
+
+		guiStats.IncreaseItemsProcessed()
+
 		if (itemValue < 0) {
 			break
 		}
 		else if (itemValue == 99999) {
 			return true
 		}
-		windowValue := windowValue + itemValue
-		TT.Text(Round(windowValue, 1) "c")
 		Sleep, 10
 	}
+
+	guiStats.Hide()
 	
-	TT.Hide()
 	return false
 }
 Start_Haggling() {
@@ -214,7 +204,7 @@ Start_Haggling() {
 			}
 		}
 
-		refreshItemPositions := ProcessWindow(stock)
+		refreshItemPositions := ProcessWindow()
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
@@ -235,14 +225,8 @@ Start_Haggling() {
 			Trade_Refresh()
 		}
 	}
-	TT := TT()
-	TT.Font("S40 bold striceout underline, Arial")
-	TT.Show("Stopped...", TOOLTIP_2_X, TOOLTIP_2_Y)
 
 	GuiShowSettings()
-
-	Sleep, 1000
-	TT.Hide()
 }
 
 F1::
@@ -272,19 +256,19 @@ return
 
 
 F4::
+	guiStats := new Gui_Stats()
+	guiStats.Show()
+	guiStats.ListClear()
+	guiStats.SetWindowItems(1)
+
 	item := Item_GetInfo()
 	price := Item_GetAlternativeHagglePrice2()
-	
-	lim := Ceil(item.Value / CURRENCY[price.Currency])
-	addLimit := "`r`nMax: " lim " " price.Currency
-	
-	TTF.Title(item.Name, A_ScriptDir . "\Currencies\" . Item.Name . ".png", "")
-	TTF.Font("S40 bold striceout underline, Arial")
-	
-	symb := item.Value > price.Total ? ">" : "<"
-	TTF.Show(Round(item.Value, 1) "c " symb " " Round(price.Total, 1) "c" addLimit, 1020, 0)
+
+	guiStats.ListAdd(item.Name, item.Num, item.Value, price.CURRENCY, price.Value, price.Total, "")
+	guiStats.IncreaseItemsProcessed()
+
 	Sleep, 5000
-	TTF.Hide()
+	guiStats.Hide()
 return
 
 GdipShutdown:
