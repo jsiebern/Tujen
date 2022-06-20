@@ -193,7 +193,7 @@ Start_Haggling() {
 		if (!WinActive("Path of Exile") || ShouldBreak()) {
 			break
 		}
-		if (A_Index == 1 || Mod(A_Index, 3) == 0) {
+		if (A_Index == 1 || Mod(A_Index, 5) == 0) {
 			stock := Stock_Read()
 
 			if (ARTIFACT_ENABLED_LESSER && stock.LESSER < 300) {
@@ -225,7 +225,7 @@ Start_Haggling() {
 			Sleep, 400
 			continue
 		}
-		if (Mod(A_Index, EMPTY_INVENTORY_AFTER) == 0) {
+		if (Inventory_Check_Threshold()) {
 			Inventory_Empty_Perform_Sequence()
 		}
 		if (coins - A_Index > 0) {
@@ -269,6 +269,10 @@ return
 ; 	MsgBox % Str
 
 ; return
+
+F3::
+	Inventory_Loop_Empty()
+return
 
 
 F4::

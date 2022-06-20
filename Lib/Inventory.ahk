@@ -5,6 +5,7 @@ Inventory_Loop_Empty() {
 
 	FindText().ScreenShot()
 	Send, {Ctrl Down}
+	;Send, {Shift Down}
     For C, GridX in InventoryGridX {
         For R, GridY in InventoryGridY {
         	PointColor := FindText().GetColor(GridX,GridY)
@@ -21,9 +22,32 @@ Inventory_Loop_Empty() {
 			break
 		}
 	}
+	;Send, {Shift Up}
 	Send, {Ctrl Up}
 
 	return true
+}
+
+Inventory_Check_Threshold() {
+    global EMPTY_INVENTORY_AFTER, InventoryGridX, InventoryGridY, EMPTY_COLORS
+	thresholdReached := false
+	FindText().ScreenShot()
+	For C, GridX in InventoryGridX {
+		if (C < EMPTY_INVENTORY_AFTER) {
+			continue
+		}
+		For R, GridY in InventoryGridY {
+        	PointColor := FindText().GetColor(GridX,GridY)
+			if !(indexOf(PointColor, EMPTY_COLORS)) {
+				thresholdReached := true
+				break
+			}
+		}
+		if (thresholdReached) {
+			break
+		}
+	}
+	return thresholdReached
 }
 
 Inventory_Click_Chest() {

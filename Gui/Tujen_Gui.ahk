@@ -186,8 +186,8 @@ Gui Tujen:Add, Text, y%yPos% x%xLabel%, Move speed
 Gui Tujen:Add, Slider, vMOVE_SPEED y%yPos% x%xEdit% w%wEdit% Range0-10 TickInterval1, % MOVE_SPEED
 yPos := yPos + hControl + spaceControl
 
-Gui Tujen:Add, Text, y%yPos% x%xLabel%, Empty inventory after
-Gui Tujen:Add, Slider, vEMPTY_INVENTORY_AFTER y%yPos% x%xEdit% w%wEdit% Range1-20 TickInterval1, % EMPTY_INVENTORY_AFTER
+Gui Tujen:Add, Text, y%yPos% x%xLabel%, Inventory threshold
+Gui Tujen:Add, Slider, vEMPTY_INVENTORY_AFTER y%yPos% x%xEdit% w%wEdit% Range1-12 TickInterval1, % EMPTY_INVENTORY_AFTER
 yPos := yPos + hControl + spaceControl
 
 ; ---------------------------------------------------------------------------------
