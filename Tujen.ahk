@@ -249,26 +249,22 @@ F1::
 	Start_Haggling()
 return
 
-; F2::
+F2::
+	k := "|<0>*48$12.y3w1lknsXsbs7s7s7s7s7l7l7X37UDszU|<1>*48$6.wU0stllllnXXXXXU|<2>*48$11.w7k766SDwTlzXyDwTlz7wTny040Q|<3>*48$10.sD0AsnXyDlyDkzVz7wTlz7sz3Uw7s|<4>*48$11.ztzXy7sDYy1wXn7CAQs00001yDwzlzXk|<5>*48$11.s1k7USTwzsTkDwTsTszlzXy7wTky7kTk|<6>*48$12.z1w0sQkzlzXzXD033X7V7V7V7X7X7b37UDtzU|<7>*47$11.U1030DwTlzXyDwzlz7yDsznz7wTtznzk|<8>*48$12.y3w1ssssksstsHs7w7k3n1bV7l7l7XX3U7szU|<9>*48$12.y3w1sklslsXsXsXsVkk0s1zlzVzXT70D0TnzU"
+    ok := FindText(X, Y, COORD_HAGGLE_PRICE_X, COORD_HAGGLE_PRICE_Y, COORD_HAGGLE_PRICE_X+COORD_HAGGLE_PRICE_W, COORD_HAGGLE_PRICE_Y+COORD_HAGGLE_PRICE_H, 0.15, 0.15, k, 1)
+	if (ocr := FindText().OCR(ok, 20, 20, 5)) {
+        MsgBox % ocr.text
+    }
+	return
 
-
-; ;	FindText().ScreenShot()
-; 	;ignoreText := "|<Chaos Orb>*105$35.3kTw0060Ds0080zk00M3zU00k7z001UDy0030zw0S60zs7w61zrzsCtzzzqzzzzzzzzzzzzzjyrrryDw03bwTs1YD0Tk30S1zU00s1z001l3y001a7wD03wzwC+DzzzxMTzzzvvzzzwTzwTzESzwHy0w7tzxVs7y7zzsDk7sTzzbzkTwzzzzjVzzzzC|<>*106$31.Y0300L00E0Ck0707c00lXy00Dtz001qzk00Dzs003zq00Ttx60Tw311zy0Uzxz0FzznUDzwzk3zzDs0rzzw01zzyA1zzzA0zzzW3Tzzk1rzzt7zzzDlyzzyTzzzzTzzzzzzvzDrzzz7uzzzXxzzznyzzzzzU"
-; 	;FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, ignoreText, 0, 2)
-; 	;MsgBox % X "`r`n" Y
-
-; 	positions := Haggle_Get_Positions()
-; 	MsgBox % positions.Count()
-; 	return
-; 	Str := ""
-; 	For Index, Value In positions
-; 		{
-; 		Str .= "," . Value.X . "/" . Value.Y
-; 		}
-; 	Str := LTrim(Str, ",")
-; 	MsgBox % Str
-
-; return
+	s := Stock_Read()
+	MsgBox % s.LESSER
+	MsgBox % s.GREATER
+	MsgBox % s.GRAND
+	MsgBox % s.EXCEPTIONAL
+	
+	
+return
 
 F3::
 	Inventory_Loop_Empty()

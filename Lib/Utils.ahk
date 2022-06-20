@@ -162,8 +162,6 @@ Item_GetAlternativeHagglePrice2(ResetMousePosition = true) {
 
     Click
     Sleep, 50
-    
-    bmpHaystack := Gdip_BitmapFromScreen(1)
 
     if (FindText(X, Y, 0, 0, 0, 0, 0.000001, 0.000001, STR_LESSER_ARTIFACT, 1, 0)) {
         CType := "LESSER"
@@ -195,12 +193,25 @@ CleanNumberRead(result) {
 
 Offer_Read() {
     global COORD_HAGGLE_PRICE_X, COORD_HAGGLE_PRICE_Y, COORD_HAGGLE_PRICE_W, COORD_HAGGLE_PRICE_H
-    return CleanNumberRead(UI_ReadFromScreen(COORD_HAGGLE_PRICE_X, COORD_HAGGLE_PRICE_Y, COORD_HAGGLE_PRICE_W, COORD_HAGGLE_PRICE_H, true))
+
+    k := "|<0>*48$12.y3w1lknsXsbs7s7s7s7s7l7l7X37UDszU|<1>*48$6.wU0stllllnXXXXXU|<2>*48$11.w7k766SDwTlzXyDwTlz7wTny040Q|<3>*48$10.sD0AsnXyDlyDkzVz7wTlz7sz3Uw7s|<4>*48$11.ztzXy7sDYy1wXn7CAQs00001yDwzlzXk|<5>*48$11.s1k7USTwzsTkDwTsTszlzXy7wTky7kTk|<6>*48$12.z1w0sQkzlzXzXD033X7V7V7V7X7X7b37UDtzU|<7>*47$11.U1030DwTlzXyDwzlz7yDsznz7wTtznzk|<8>*48$12.y3w1ssssksstsHs7w7k3n1bV7l7l7XX3U7szU|<9>*48$12.y3w1sklslsXsXsXsVkk0s1zlzVzXT70D0TnzU"
+    ok := FindText(X, Y, COORD_HAGGLE_PRICE_X, COORD_HAGGLE_PRICE_Y, COORD_HAGGLE_PRICE_X+COORD_HAGGLE_PRICE_W, COORD_HAGGLE_PRICE_Y+COORD_HAGGLE_PRICE_H, 0.15, 0.15, k, 1)
+	if (ocr := FindText().OCR(ok, 20, 20, 5)) {
+        return ocr.text
+    }
+    return -1
 }
 
 Coinage_Read() {
     global COORD_COINS_LEFT_X, COORD_COINS_LEFT_Y, COORD_COINS_LEFT_W, COORD_COINS_LEFT_H
-    return CleanNumberRead(UI_ReadFromScreen(COORD_COINS_LEFT_X, COORD_COINS_LEFT_Y, COORD_COINS_LEFT_W, COORD_COINS_LEFT_H, true))
+
+    n := "|<0>*47$10.sT0sV74QHsDUy3s7YSFlWC1yTU|<1>*47$7.yQ04XlswSD7XlswS8|<2>*46$9.kw16Bkz7lyDnwT7lwT000U|<3>*47$9.kw16BsyDlwz1y7sz7sy7lkMDU|<4>*46$11.zDwDsTUz1wXn7aCQQsk000z7yDwTss|<5>*45$9.kA0UAzbwDUTVyDsz7syDVkMDU|<6>*47$10.yTUQRXyTlz4Q0Fl7US1s7YSMlkDXs|<7>*46$10.04081z7wTnyDtz7wzXyDtz7wzXy|<8>*48$10.sy0tl7YSEnUD1w3Y4QHsDUyFlUDXs|<9>*47$10.sy0tV74QFl7US0kU74Tlz7sk70zjs"
+
+    ok := FindText(COORD_COINS_LEFT_X, COORD_COINS_LEFT_Y, COORD_COINS_LEFT_X+COORD_COINS_LEFT_W, COORD_COINS_LEFT_Y+COORD_COINS_LEFT_H, 0.000001, 0.000001, n)
+	if (ocr := FindText().OCR(ok)) {
+        return ocr.text
+    }
+    return -1
 }
 
 Stock_Read() {
@@ -209,10 +220,38 @@ Stock_Read() {
     global COORD_GRAND_LEFT_X, COORD_GRAND_LEFT_Y, COORD_GRAND_LEFT_W, COORD_GRAND_LEFT_H
     global COORD_EXCEPTIONAL_LEFT_X, COORD_EXCEPTIONAL_LEFT_Y, COORD_EXCEPTIONAL_LEFT_W, COORD_EXCEPTIONAL_LEFT_H
 
-    lesser := CleanNumberRead(UI_ReadFromScreen(COORD_LESSER_LEFT_X, COORD_LESSER_LEFT_Y, COORD_LESSER_LEFT_W, COORD_LESSER_LEFT_H, true))
-    greater := CleanNumberRead(UI_ReadFromScreen(COORD_GREATER_LEFT_X, COORD_GREATER_LEFT_Y, COORD_GREATER_LEFT_W, COORD_GREATER_LEFT_H, true))
-    grand := CleanNumberRead(UI_ReadFromScreen(COORD_GRAND_LEFT_X, COORD_GRAND_LEFT_Y, COORD_GRAND_LEFT_W, COORD_GRAND_LEFT_H, true))
-    exceptional := CleanNumberRead(UI_ReadFromScreen(COORD_EXCEPTIONAL_LEFT_X, COORD_EXCEPTIONAL_LEFT_Y, COORD_EXCEPTIONAL_LEFT_W, COORD_EXCEPTIONAL_LEFT_H, true))
+    n := "|<0>*47$10.sT0sV74QHsDUy3s7YSFlWC1yTU|<1>*47$7.yQ04XlswSD7XlswS8|<2>*46$9.kw16Bkz7lyDnwT7lwT000U|<3>*47$9.kw16BsyDlwz1y7sz7sy7lkMDU|<4>*46$11.zDwDsTUz1wXn7aCQQsk000z7yDwTss|<5>*45$9.kA0UAzbwDUTVyDsz7syDVkMDU|<6>*47$10.yTUQRXyTlz4Q0Fl7US1s7YSMlkDXs|<7>*46$10.04081z7wTnyDtz7wzXyDtz7wzXy|<8>*48$10.sy0tl7YSEnUD1w3Y4QHsDUyFlUDXs|<9>*47$10.sy0tV74QFl7US0kU74Tlz7sk70zjs"
+
+    FindText().ScreenShot()
+
+    ok := FindText(X, Y, COORD_LESSER_LEFT_X, COORD_LESSER_LEFT_Y, COORD_LESSER_LEFT_X+COORD_LESSER_LEFT_W, COORD_LESSER_LEFT_Y+COORD_LESSER_LEFT_H, 0.000001, 0.000001, n, 0)
+	if (ocr := FindText().OCR(ok)) {
+        lesser := ocr.text
+    }
+    else {
+        lesser := -1
+    }
+    ok := FindText(X, Y, COORD_GREATER_LEFT_X, COORD_GREATER_LEFT_Y, COORD_GREATER_LEFT_X+COORD_GREATER_LEFT_W, COORD_GREATER_LEFT_Y+COORD_GREATER_LEFT_H, 0.000001, 0.000001, n, 0)
+    if (ocr := FindText().OCR(ok)) {
+        greater := ocr.text
+    }
+    else {
+        greater := -1
+    }
+    ok := FindText(X, Y, COORD_GRAND_LEFT_X, COORD_GRAND_LEFT_Y, COORD_GRAND_LEFT_X+COORD_GRAND_LEFT_W, COORD_GRAND_LEFT_Y+COORD_GRAND_LEFT_H, 0.000001, 0.000001, n, 0)
+    if (ocr := FindText().OCR(ok)) {
+        grand := ocr.text
+    }
+    else {
+        grand := -1
+    }
+    ok := FindText(X, Y, COORD_EXCEPTIONAL_LEFT_X, COORD_EXCEPTIONAL_LEFT_Y, COORD_EXCEPTIONAL_LEFT_X+COORD_EXCEPTIONAL_LEFT_W, COORD_EXCEPTIONAL_LEFT_Y+COORD_EXCEPTIONAL_LEFT_H, 0.000001, 0.000001, n, 0)
+    if (ocr := FindText().OCR(ok)) {
+        exceptional := ocr.text
+    }
+    else {
+        exceptional := -1
+    }
 
     return {LESSER: lesser, GREATER: greater, GRAND: grand, EXCEPTIONAL: exceptional}
 }
