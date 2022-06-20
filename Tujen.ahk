@@ -3,21 +3,15 @@
 SetWorkingDir, %A_ScriptDir%
 
 #include Lib\Prices.ahk
-#include Gdip\Gdip.ahk
-#include Gdip\Gdip_ImageSearch.ahk
 #Include Lib\FindText\FindText.ahk
 #include Lib\Coordinates.ahk
 #include Gui\Tujen_Gui.ahk
-#include CSV.ahk
 #include Lib\Utils.ahk
 #include Lib\UI.ahk
-#include Tujen_Functions.ahk
 #include Lib\Inventory.ahk
 #include Lib\Haggle.ahk
 
 STOP_SCRIPT := false
-pToken := Gdip_Startup()
-OnExit, GdipShutdown
 
 ShouldBreak() {
 	if (GetKeyState("Del", "P") == 1) {
@@ -241,7 +235,3 @@ F4::
 	Sleep, 5000
 	guiStats.Hide()
 return
-
-GdipShutdown:
-	Gdip_Shutdown(pToken)
-ExitApp

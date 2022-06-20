@@ -14,7 +14,8 @@ Gui_TestString(STR) {
 }
 
 Gui_TestCoordinate(X, Y, W, H) {
-    result := CleanNumberRead(UI_ReadFromScreen(X, Y, W, H, true))
+    ; TODO: Replace with FindText()
+    ; result := CleanNumberRead(UI_ReadFromScreen(X, Y, W, H, true))
     MsgBox % result
     return
 }

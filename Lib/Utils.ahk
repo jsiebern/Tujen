@@ -1,6 +1,5 @@
 #Include Lib\Prices.ahk
 #Include Lib\Prices_Poe.ahk
-#Include Gdip\Gdip.ahk
 
 Item_GetInfo() {
     global ITEMS_OF_INTEREST
