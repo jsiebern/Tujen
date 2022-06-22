@@ -1,5 +1,5 @@
 Inventory_Loop_Empty() {
-    global InventoryGridX, InventoryGridY, EMPTY_COLORS, MOVE_SPEED, CELL_SIZE
+    global InventoryGridX, InventoryGridY, EMPTY_INVENTORY_AFTER, EMPTY_COLORS, MOVE_SPEED, CELL_SIZE
 
     GuiHideSettings()
 
@@ -7,6 +7,9 @@ Inventory_Loop_Empty() {
 	Send, {Ctrl Down}
 	;Send, {Shift Down}
     For C, GridX in InventoryGridX {
+		if (C > EMPTY_INVENTORY_AFTER) {
+			continue
+		}
         For R, GridY in InventoryGridY {
         	PointColor := FindText().GetColor(GridX,GridY)
 			if !(indexOf(PointColor, EMPTY_COLORS)) {
@@ -33,7 +36,7 @@ Inventory_Check_Threshold() {
 	thresholdReached := false
 	FindText().ScreenShot()
 	For C, GridX in InventoryGridX {
-		if (C < EMPTY_INVENTORY_AFTER) {
+		if (C < EMPTY_INVENTORY_AFTER || C > EMPTY_INVENTORY_AFTER) {
 			continue
 		}
 		For R, GridY in InventoryGridY {

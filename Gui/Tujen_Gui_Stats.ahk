@@ -26,8 +26,6 @@ class Gui_Stats {
         LV_ModifyCol(2, 100)
         LV_ModifyCol(4, 60)
         LV_ModifyCol(5, 80)
-
-        ;this.ListClear()
     }
 
     RefreshWindowText()

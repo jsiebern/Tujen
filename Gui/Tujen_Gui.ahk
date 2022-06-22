@@ -14,6 +14,8 @@ IniRead, STR_LESSER_ARTIFACT, % INI_FILE, FindTextStrings, STR_LESSER_ARTIFACT, 
 IniRead, STR_GREATER_ARTIFACT, % INI_FILE, FindTextStrings, STR_GREATER_ARTIFACT, % " "
 IniRead, STR_GRAND_ARTIFACT, % INI_FILE, FindTextStrings, STR_GRAND_ARTIFACT, % " "
 IniRead, STR_EXCEPTIONAL_ARTIFACT, % INI_FILE, FindTextStrings, STR_EXCEPTIONAL_ARTIFACT, % " "
+IniRead, STR_NUMBERS_CURSIVE, % INI_FILE, FindTextStrings, STR_NUMBERS_CURSIVE, % "|<0>*48$12.y3w1lknsXsbs7s7s7s7s7l7l7X37UDszU|<1>*48$6.wU0stllllnXXXXXU|<2>*48$11.w7k766SDwTlzXyDwTlz7wTny040Q|<3>*48$10.sD0AsnXyDlyDkzVz7wTlz7sz3Uw7s|<4>*48$11.ztzXy7sDYy1wXn7CAQs00001yDwzlzXk|<5>*48$11.s1k7USTwzsTkDwTsTszlzXy7wTky7kTk|<6>*48$12.z1w0sQkzlzXzXD033X7V7V7V7X7X7b37UDtzU|<7>*47$11.U1030DwTlzXyDwzlz7yDsznz7wTtznzk|<8>*48$12.y3w1ssssksstsHs7w7k3n1bV7l7l7XX3U7szU|<9>*48$12.y3w1sklslsXsXsXsVkk0s1zlzVzXT70D0TnzU"
+IniRead, STR_NUMBERS, % INI_FILE, FindTextStrings, STR_NUMBERS, % "|<0>*47$10.sT0sV74QHsDUy3s7YSFlWC1yTU|<1>*47$7.yQ04XlswSD7XlswS8|<2>*46$9.kw16Bkz7lyDnwT7lwT000U|<3>*47$9.kw16BsyDlwz1y7sz7sy7lkMDU|<4>*46$11.zDwDsTUz1wXn7aCQQsk000z7yDwTss|<5>*45$9.kA0UAzbwDUTVyDsz7syDVkMDU|<6>*47$10.yTUQRXyTlz4Q0Fl7US1s7YSMlkDXs|<7>*46$10.04081z7wTnyDtz7wzXyDtz7wzXy|<8>*48$10.sy0tl7YSEnUD1w3Y4QHsDUyFlUDXs|<9>*47$10.sy0tV74QFl7US0kU74Tlz7sk70zjs"
 IniRead, COORD_HAGGLE_PRICE_X, % INI_FILE, CapturedCoordinates, COORD_HAGGLE_PRICE_X, % " "
 IniRead, COORD_HAGGLE_PRICE_Y, % INI_FILE, CapturedCoordinates, COORD_HAGGLE_PRICE_Y, % " "
 IniRead, COORD_HAGGLE_PRICE_W, % INI_FILE, CapturedCoordinates, COORD_HAGGLE_PRICE_W, % " "
@@ -130,8 +132,9 @@ yPos := yPos + hControl + spaceControl
 ; ---------------------------------------------------------------------------------
 
 ; Detectable targets
+
 yPos := yPos + 20
-boxHeight := 20 + 5 * (20 + 10) + 10
+boxHeight := 20 + 7 * (20 + 10) + 10
 Gui Tujen:Add, GroupBox, x7 y%yPos% w328 h%boxHeight% -Theme, Detectable Targets
 yPos := yPos + 20
 
@@ -146,6 +149,10 @@ yPos := yPos + hControl + spaceControl
 GuiHelper_AddStringField("STR_GRAND_ARTIFACT", "Grand Artifact", yPos)
 yPos := yPos + hControl + spaceControl
 GuiHelper_AddStringField("STR_EXCEPTIONAL_ARTIFACT", "Exceptional Artifact", yPos)
+yPos := yPos + hControl + spaceControl
+GuiHelper_AddStringField("STR_NUMBERS_CURSIVE", "Cursive Numbers", yPos)
+yPos := yPos + hControl + spaceControl
+GuiHelper_AddStringField("STR_NUMBERS", "Numbers", yPos)
 yPos := yPos + hControl + spaceControl
 
 ; ---------------------------------------------------------------------------------

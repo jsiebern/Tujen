@@ -15,7 +15,7 @@ Gui_TestString(STR) {
 
 Gui_TestCoordinate(X, Y, W, H) {
     ; TODO: Replace with FindText()
-    ; result := CleanNumberRead(UI_ReadFromScreen(X, Y, W, H, true))
+    result := UI_ReadFromScreen(X, Y, W, H)
     MsgBox % result
     return
 }
@@ -94,6 +94,20 @@ Gui_Test_STR_EXCEPTIONAL_ARTIFACT(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "")
     global STR_EXCEPTIONAL_ARTIFACT
     Gui Tujen:Submit, NoHide
     Gui_TestString(STR_EXCEPTIONAL_ARTIFACT)
+    return
+}
+
+Gui_Test_STR_NUMBERS_CURSIVE(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
+    global STR_NUMBERS_CURSIVE
+    Gui Tujen:Submit, NoHide
+    Gui_TestString(STR_NUMBERS_CURSIVE)
+    return
+}
+
+Gui_Test_STR_NUMBERS(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
+    global STR_NUMBERS
+    Gui Tujen:Submit, NoHide
+    Gui_TestString(STR_NUMBERS)
     return
 }
 
@@ -262,6 +276,8 @@ Gui_SaveValues(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
     global STR_GREATER_ARTIFACT
     global STR_GRAND_ARTIFACT
     global STR_EXCEPTIONAL_ARTIFACT
+    global STR_NUMBERS
+    global STR_NUMBERS_CURSIVE
     global COORD_HAGGLE_PRICE_X, COORD_HAGGLE_PRICE_Y, COORD_HAGGLE_PRICE_W, COORD_HAGGLE_PRICE_H
     global COORD_COINS_LEFT_X, COORD_COINS_LEFT_Y, COORD_COINS_LEFT_W, COORD_COINS_LEFT_H
     global COORD_LESSER_LEFT_X, COORD_LESSER_LEFT_Y, COORD_LESSER_LEFT_W, COORD_LESSER_LEFT_H
@@ -286,6 +302,8 @@ Gui_SaveValues(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
     IniWrite % STR_GREATER_ARTIFACT, % INI_FILE, FindTextStrings, STR_GREATER_ARTIFACT
     IniWrite % STR_GRAND_ARTIFACT, % INI_FILE, FindTextStrings, STR_GRAND_ARTIFACT
     IniWrite % STR_EXCEPTIONAL_ARTIFACT, % INI_FILE, FindTextStrings, STR_EXCEPTIONAL_ARTIFACT
+    IniWrite % STR_NUMBERS, % INI_FILE, FindTextStrings, STR_NUMBERS
+    IniWrite % STR_NUMBERS_CURSIVE, % INI_FILE, FindTextStrings, STR_NUMBERS_CURSIVE
     IniWrite % COORD_HAGGLE_PRICE_X, % INI_FILE, CapturedCoordinates, COORD_HAGGLE_PRICE_X
     IniWrite % COORD_HAGGLE_PRICE_Y, % INI_FILE, CapturedCoordinates, COORD_HAGGLE_PRICE_Y
     IniWrite % COORD_HAGGLE_PRICE_W, % INI_FILE, CapturedCoordinates, COORD_HAGGLE_PRICE_W
