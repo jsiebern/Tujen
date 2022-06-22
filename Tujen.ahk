@@ -2,7 +2,10 @@
 ;#IfWinActive, Path of Exile
 SetWorkingDir, %A_ScriptDir%
 
+#include Lib\WinHttpRequest.ahk
+#include Lib\JSON.ahk
 #include Lib\Prices.ahk
+#include Lib\Prices_Poe.ahk
 #Include Lib\FindText\FindText.ahk
 #include Lib\Coordinates.ahk
 #include Gui\Tujen_Gui.ahk
@@ -203,16 +206,38 @@ F1::
 return
 
 F2::
-	positions := Haggle_Get_Positions()
-	MsgBox % positions.Length()
-	MsgBox % positions.Count()
+	p := A_ScriptDir . "\test.json"
+	if (!FileExist(p)) {
+		r := WinHttpRequest("https://poe.ninja/api/data/CurrencyOverview?league=Sentinel&type=Fragment&language=en", InOutData := "", InOutHeaders := "", "Timeout: 1`nNO_AUTO_REDIRECT")
+		file := FileOpen(p, "w")
+		file.Write(InOutData)
+		file.Close()
+	}
+	FileRead, Contents, % p
+	value := JSON.Load( Contents )
+	; MsgBox, % (r = -1) ? "successful" : (r = 0) ? "Timeout" : "No response"
+	
+	ITEMS_OF_INTEREST := {}
+	For I, E in value.lines {
+		ITEMS_OF_INTEREST[E.currencyTypeName] := E.chaosEquivalent
+	}
 
-	guiStats := new Gui_Stats()
-	guiStats.Show()
-	guiStats.ListClear()
-	guiStats.SetWindowItems(positions.Count())
-	
-	
+	p := A_ScriptDir . "\test2.json"
+	if (!FileExist(p)) {
+		r := WinHttpRequest("https://poe.ninja/api/data/CurrencyOverview?league=Sentinel&type=Currency&language=en", InOutData := "", InOutHeaders := "", "Timeout: 1`nNO_AUTO_REDIRECT")
+		file := FileOpen(p, "w")
+		file.Write(InOutData)
+		file.Close()
+	}
+	FileRead, Contents, % p
+	value := JSON.Load( Contents )
+	For I, E in value.lines {
+		ITEMS_OF_INTEREST[E.currencyTypeName] := E.chaosEquivalent
+	}
+
+
+	MsgBox % ITEMS_OF_INTEREST["Chayula's Pure Breachstone"]
+	MsgBox % ITEMS_OF_INTEREST["Orb of Alteration"]
 return
 
 F3::
