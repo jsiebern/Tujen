@@ -251,10 +251,10 @@ F4::
 	guiStats.ListClear()
 	guiStats.SetWindowItems(1)
 
-	item := Item_GetInfo()
 	price := Item_GetAlternativeHagglePrice2()
+	item := Item_GetInfo()
 
-	guiStats.ListAdd(item.Name, item.Num, item.Value, price.CURRENCY, price.Value, price.Total, "")
+	guiStats.ListAdd(item.Name, item.Num, item.Value, price.CURRENCY, price.Value, price.Total, "PRICECHECK")
 	guiStats.IncreaseItemsProcessed()
 
 	Sleep, 5000
