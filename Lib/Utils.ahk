@@ -213,9 +213,11 @@ Offer_Read() {
 Coinage_Read() {
     global COORD_COINS_LEFT_X, COORD_COINS_LEFT_Y, COORD_COINS_LEFT_W, COORD_COINS_LEFT_H, STR_NUMBERS
 
-    ok := FindText(COORD_COINS_LEFT_X, COORD_COINS_LEFT_Y, COORD_COINS_LEFT_X+COORD_COINS_LEFT_W, COORD_COINS_LEFT_Y+COORD_COINS_LEFT_H, 0.000001, 0.000001, STR_NUMBERS)
+    ok := FindText(X, Y, COORD_COINS_LEFT_X, COORD_COINS_LEFT_Y, COORD_COINS_LEFT_X+COORD_COINS_LEFT_W, COORD_COINS_LEFT_Y+COORD_COINS_LEFT_H, 0.000001, 0.000001, STR_NUMBERS)
 	if (ocr := FindText().OCR(ok)) {
-        return ocr.text
+        if (ocr.text != "") {
+            return ocr.text
+        }
     }
     return -1
 }

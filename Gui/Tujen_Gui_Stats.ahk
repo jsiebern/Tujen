@@ -87,7 +87,7 @@ class Gui_Stats {
     {
         w := 453
         x := A_ScreenWidth - 10 - w
-        Gui Stats:Show, w%w% h358 x%x% y10, Tujen Haggler
+        Gui Stats:Show, w%w% h358 x%x% y10, Turbo Titten Haggler
         if WinExist("Path of Exile") {
             WinActivate
         }
