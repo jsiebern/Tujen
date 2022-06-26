@@ -60,7 +60,7 @@ CURRENCY["LESSER"] := PRICE_LESSER
 EMPTY_COLORS := StrSplit(EMPTY_COLORS, ",")
 EMPTY_COLORS_HAGGLE_WINDOW := StrSplit(EMPTY_COLORS_HAGGLE_WINDOW, ",")
 
-Gui, Tujen:+AlwaysOnTop +ToolWindow
+Gui, Tujen:+AlwaysOnTop
 
 Gui Tujen:Font, s9, Calibri
 Gui Tujen:Font
