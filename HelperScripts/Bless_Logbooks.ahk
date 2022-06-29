@@ -10,7 +10,7 @@ SetWorkingDir, %A_ScriptDir%
 
 ShouldBless(LogbookArea) {
     modCount := LogbookArea.Modifiers.Count()
-    multiplier := modCount > 2 ? 0.7 : modCount > 1 ? 0.8 : 0.9
+    multiplier := modCount > 2 ? 0.6 : modCount > 1 ? 0.7 : 0.8
     goodMods := 0
     For i, M in LogbookArea.Modifiers {
         if (M.Value >= M.Max * multiplier) {

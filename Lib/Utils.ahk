@@ -24,9 +24,10 @@ Item_GetInfo() {
         isUnique := Item_Description_Is_Unique(C)
         mTier := Item_Description_GetMapTier(C)
         I_Name := StrReplace(I_Name, "Superior ", "")
+        I_Alt_Name := StrReplace(I_Alt_Name, "Superior ", "")
         if (mTier < 16 && !isUnique) {
             I_Name := I_Name . mTier
-            I_Alt_Name := "-"
+            I_Alt_Name := I_Alt_Name . mTier
         }
         if (mTier < MIN_MAP_TIER && !isUnique) {
             return {Name: I_Name, Num: 0, Value: 0}

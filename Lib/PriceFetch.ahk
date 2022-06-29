@@ -51,8 +51,7 @@ class PriceFetch
                     }
                 }
                 if (E.mapTier) {
-                    
-                    if (E.itemClass != 3 && E.mapTier < 16) {
+                    if ((E.itemClass == 0 || E.itemClass == 2) && E.mapTier < 16) {
                         E.name := E.name . E.mapTier
                     }
                 }
