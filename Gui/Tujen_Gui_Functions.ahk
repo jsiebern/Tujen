@@ -288,6 +288,7 @@ Gui_SaveValues(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
     global EMPTY_INVENTORY_AFTER
     global PRICE_EXCEPTIONAL, PRICE_GRAND, PRICE_GREATER, PRICE_LESSER
     global ARTIFACT_ENABLED_LESSER, ARTIFACT_ENABLED_GREATER, ARTIFACT_ENABLED_GRAND, ARTIFACT_ENABLED_EXCEPTIONAL
+    global PRICES_CUSTOM, PRICES_BLACK, PRICES_WHITE, PRICES_MAPPING
 
     Gui Tujen:Submit, NoHide
     
@@ -338,13 +339,24 @@ Gui_SaveValues(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
     IniWrite % ARTIFACT_ENABLED_GREATER, % INI_FILE, ArtifactsEnabled, ARTIFACT_ENABLED_GREATER
     IniWrite % ARTIFACT_ENABLED_GRAND, % INI_FILE, ArtifactsEnabled, ARTIFACT_ENABLED_GRAND
     IniWrite % ARTIFACT_ENABLED_EXCEPTIONAL, % INI_FILE, ArtifactsEnabled, ARTIFACT_ENABLED_EXCEPTIONAL
+    pCustom := StrReplace(PRICES_CUSTOM, "`n", "|")
+    IniWrite % pCustom, % INI_FILE, PriceSettings, PRICES_CUSTOM
+    pBlack := StrReplace(PRICES_BLACK, "`n", "|")
+    IniWrite % pBlack, % INI_FILE, PriceSettings, PRICES_BLACK
+    pWhite := StrReplace(PRICES_WHITE, "`n", "|")
+    IniWrite % pWhite, % INI_FILE, PriceSettings, PRICES_WHITE
+    pMapping := StrReplace(PRICES_MAPPING, "`n", "|")
+    IniWrite % pMapping, % INI_FILE, PriceSettings, PRICES_MAPPING
 
     CURRENCY["EXCEPTIONAL"] := PRICE_EXCEPTIONAL
     CURRENCY["GRAND"] := PRICE_GRAND
     CURRENCY["GREATER"] := PRICE_GREATER
     CURRENCY["LESSER"] := PRICE_LESSER
 
-    MsgBox, Values Saved
+    MsgBox, Values saved, the script will now restart
+    Reload
+    Sleep 1000
+    MsgBox, 4,, The script could not be reloaded, please restart manually
     return
 }
 

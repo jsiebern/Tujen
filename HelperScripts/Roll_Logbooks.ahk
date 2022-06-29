@@ -17,7 +17,7 @@ F1::
 			}
             ItemX := GridX + CELL_SIZE/2
             ItemY := GridY - CELL_SIZE/2
-            MouseMove, ItemX, ItemY, MOVE_SPEED
+            MouseMove, ItemX, ItemY, 3
             info := Item_Info()
             if (!Is_Logbook(info)) {
                 continue

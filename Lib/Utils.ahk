@@ -1,5 +1,6 @@
 Item_GetInfo() {
-    global ITEMS_OF_INTEREST
+    global Prices, MIN_MAP_TIER
+    ITEMS_OF_INTEREST := Prices.PriceList
 
     clipboard := ""
     Send, ^c
@@ -10,24 +11,26 @@ Item_GetInfo() {
     I_Name := Trim(lines[3])
     I_Alt_Name := Trim(lines[4])
     ; Customizations
-    if (InStr(C, "Contract") && InStr(C, "Deception")) {
-        I_Name := "Contract"
+    mapping := Item_GetMapping(C)
+    if (mapping) {
+        I_Name := mapping
     }
-    if (InStr(C, "Blueprints")) {
-        I_Name := "Blueprint"
+    white := Item_IsWhitelisted(C)
+    black := Item_IsBlacklisted(C)
+    if (black && !white) {
+        return {Name: I_Name, Num: 0, Value: 0}
     }
-    if (Item_Description_IsMap(C) || Item_Description_Is_Ignored(C)) {
-        if (Item_Description_GetMapTier(C) < 14 && !Item_Description_Is_Unique(C)) {
-            I_Name := "-"
+    if (Item_Description_IsMap(C)) {
+        isUnique := Item_Description_Is_Unique(C)
+        mTier := Item_Description_GetMapTier(C)
+        I_Name := StrReplace(I_Name, "Superior ", "")
+        if (mTier < 16 && !isUnique) {
+            I_Name := I_Name . mTier
             I_Alt_Name := "-"
         }
-    }
-    if (Item_Description_IsOccupied(C)) {
-        I_Name := "Occupied Map"
-    }
-    if (Item_Description_IsIncubator(C)) {
-        I_Name := "-"
-        I_Alt_Name := "-"
+        if (mTier < MIN_MAP_TIER && !isUnique) {
+            return {Name: I_Name, Num: 0, Value: 0}
+        }
     }
     ; End Customizations
     I_Num := Item_Description_GetStackSize(C)
@@ -43,76 +46,7 @@ Item_GetInfo() {
         V := ITEMS_OF_INTEREST[I_Name]
         I_Value := V * I_Num
     }
-    item := {Name: I_Name, Num: I_Num, Value: I_Value}
-    return item
-}
-
-Item_Description_Is_Ignored(description) {
-    Has := InStr(description, "Whetstone")
-    if (Has > 0) {
-        return true
-    }
-    Has := InStr(description, "Abyss Jewels")
-    if (Has > 0) {
-        return true
-    }
-    Has := InStr(description, "Scrap")
-    if (Has > 0) {
-        return true
-    }
-    Has := InStr(description, "Silver Coin")
-    if (Has > 0) {
-        return true
-    }
-    Has := InStr(description, "Transmutation")
-    if (Has > 0) {
-        return true
-    }
-    Has := InStr(description, "Orb of Binding")
-    if (Has > 0) {
-        return true
-    }
-    Has := InStr(description, "Breach Ring")
-    if (Has > 0) {
-        return true
-    }
-    Has := InStr(description, "Clear Oil")
-    if (Has > 0) {
-        return true
-    }
-    Has := InStr(description, "Sepia Oil")
-    if (Has > 0) {
-        return true
-    }
-    Has := InStr(description, "Amber Oil")
-    if (Has > 0) {
-        return true
-    }
-    return false
-}
-
-Item_Description_IsOccupied(description) {
-    HasOccupied := InStr(description, "Map is occupied")
-    if (HasOccupied > 0) {
-        return true
-    }
-    HasContains := InStr(description, "Map contains")
-    if (HasContains > 0) {
-        return true
-    }
-    HasContains := InStr(description, "Area is influenced")
-    if (HasContains > 0) {
-        return true
-    }
-    return false
-}
-
-Item_Description_IsIncubator(description) {
-    HasIncubator := InStr(description, "Incubator")
-    if (HasIncubator <= 0) {
-        return false
-    }
-    return true
+    return {Name: I_Name, Num: I_Num, Value: I_Value}
 }
 
 Item_Description_Is_Unique(description) {
@@ -136,8 +70,55 @@ Item_Description_IsMap(description) {
 }
 
 Item_Description_GetMapTier(description) {
-    RegExMatch(description, "O)Map Tier: (?<nr>[0-9]{1,2})\/", SubPat)
+    RegExMatch(description, "O)Map Tier: (?<nr>[0-9]{1,2})", SubPat)
     return SubPat["nr"]
+}
+
+Item_IsBlacklisted(description) {
+    global PRICES_BLACK
+
+    blacklist := StrSplit(PRICES_BLACK, "`n")
+    For i, B in blacklist {
+        if (InStr(description, B) > 0) {
+            return true
+        }
+    }
+    return false
+}
+
+
+Item_IsWhitelisted(description) {
+    global PRICES_WHITE
+
+    whitelist := StrSplit(PRICES_WHITE, "`n")
+    For i, W in whitelist {
+        if (InStr(description, W) > 0) {
+            return true
+        }
+    }
+    return false
+}
+
+Item_GetMapping(description) {
+    global PRICES_MAPPING
+
+    mapping := StrSplit(PRICES_MAPPING, "`n")
+    For i, m in mapping {
+        spl := StrSplit(m, ":")
+        keys := StrSplit(spl[1], ",")
+        newName := spl[2]
+        shouldReturnMapping := true
+        For x, key in keys {
+            if (InStr(description, key) <= 0) {
+                shouldReturnMapping := false
+                break
+            }
+        }
+        if (shouldReturnMapping) {
+            return newName
+        }
+    }
+    return false
 }
 
 Item_Description_GetStackSize(description) {

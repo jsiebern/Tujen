@@ -2,10 +2,12 @@
 ;#IfWinActive, Path of Exile
 SetWorkingDir, %A_ScriptDir%
 
+#include Lib\Eval.ahk
+#include Lib\Load_Bar.ahk
 #include Lib\WinHttpRequest.ahk
 #include Lib\JSON.ahk
+#include Lib\PriceFetch.ahk
 #include Lib\Prices.ahk
-#include Lib\Prices_Poe.ahk
 #Include Lib\FindText\FindText.ahk
 #include Lib\Coordinates.ahk
 #include Gui\Tujen_Gui.ahk
@@ -15,6 +17,27 @@ SetWorkingDir, %A_ScriptDir%
 #include Lib\Haggle.ahk
 
 STOP_SCRIPT := false
+Load_BarControl(0, "Initializing", 1)
+Prices := new PriceFetch()
+Load_BarControl(92, "Injecting Custom Prices", 1)
+customPrices := StrSplit(PRICES_CUSTOM, "`n")
+parsedPrices := {}
+For i, Price in customPrices {
+	spl := StrSplit(Price, ":")
+	key := spl[1]
+	value := spl[2]
+	RegExMatch(value, "O)\{(?<key>[a-zA-Z ]*)\}", SubPat)
+    if (SubPat["key"]) {
+		value := StrReplace(value, "{" . SubPat["key"] . "}", Prices.PriceList[SubPat["key"]])
+		value := Eval(value)
+	}
+	
+	parsedPrices[key] := value
+}
+Prices.InjectPrices(parsedPrices)
+Load_BarControl(100, "Done", -1)
+GuiShowSettings()
+
 
 ShouldBreak() {
 	if (GetKeyState("Del", "P") == 1) {
@@ -54,7 +77,7 @@ BuyItem() {
 			Send {WheelDown 1}
 			Sleep, 20
 		}
-		Sleep, 25
+		Sleep, 55
 		ConfirmOffer()
 		Sleep, 75
 		isFirstOffer := false
@@ -205,41 +228,6 @@ F1::
 	Start_Haggling()
 return
 
-F2::
-	p := A_ScriptDir . "\test.json"
-	if (!FileExist(p)) {
-		r := WinHttpRequest("https://poe.ninja/api/data/CurrencyOverview?league=Sentinel&type=Fragment&language=en", InOutData := "", InOutHeaders := "", "Timeout: 1`nNO_AUTO_REDIRECT")
-		file := FileOpen(p, "w")
-		file.Write(InOutData)
-		file.Close()
-	}
-	FileRead, Contents, % p
-	value := JSON.Load( Contents )
-	; MsgBox, % (r = -1) ? "successful" : (r = 0) ? "Timeout" : "No response"
-	
-	ITEMS_OF_INTEREST := {}
-	For I, E in value.lines {
-		ITEMS_OF_INTEREST[E.currencyTypeName] := E.chaosEquivalent
-	}
-
-	p := A_ScriptDir . "\test2.json"
-	if (!FileExist(p)) {
-		r := WinHttpRequest("https://poe.ninja/api/data/CurrencyOverview?league=Sentinel&type=Currency&language=en", InOutData := "", InOutHeaders := "", "Timeout: 1`nNO_AUTO_REDIRECT")
-		file := FileOpen(p, "w")
-		file.Write(InOutData)
-		file.Close()
-	}
-	FileRead, Contents, % p
-	value := JSON.Load( Contents )
-	For I, E in value.lines {
-		ITEMS_OF_INTEREST[E.currencyTypeName] := E.chaosEquivalent
-	}
-
-
-	MsgBox % ITEMS_OF_INTEREST["Chayula's Pure Breachstone"]
-	MsgBox % ITEMS_OF_INTEREST["Orb of Alteration"]
-return
-
 F3::
 	Inventory_Loop_Empty()
 return
@@ -252,7 +240,14 @@ F4::
 	guiStats.SetWindowItems(1)
 
 	price := Item_GetAlternativeHagglePrice2()
+	if WinExist("Path of Exile") {
+		WinActivate
+	}
+	Sleep, 50
+	MouseMove, 1, 1, 3, R
+	Sleep, 50
 	item := Item_GetInfo()
+	Sleep, 50
 
 	guiStats.ListAdd(item.Name, item.Num, item.Value, price.CURRENCY, price.Value, price.Total, "PRICECHECK")
 	guiStats.IncreaseItemsProcessed()

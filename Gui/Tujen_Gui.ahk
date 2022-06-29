@@ -44,6 +44,11 @@ IniRead, MOVE_SPEED, % INI_FILE, OtherValues, MOVE_SPEED, 3
 IniRead, EMPTY_COLORS, % INI_FILE, OtherValues, EMPTY_COLORS, 0x000100,0x020402,0x000000,0x020302,0x010101,0x010201,0x060906,0x050905,0x030303,0x020202
 IniRead, EMPTY_COLORS_HAGGLE_WINDOW, % INI_FILE, OtherValues, EMPTY_COLORS_HAGGLE_WINDOW, 0x000100,0x020402,0x000000,0x020302,0x010101,0x010201,0x060906,0x050905,0x030303,0x020202
 IniRead, EMPTY_INVENTORY_AFTER, % INI_FILE, OtherValues, EMPTY_INVENTORY_AFTER, 15
+IniRead, PRICES_MAPPING, % INI_FILE, PriceSettings, PRICES_MAPPING, % " "
+IniRead, PRICES_CUSTOM, % INI_FILE, PriceSettings, PRICES_CUSTOM, % " "
+IniRead, PRICES_BLACK, % INI_FILE, PriceSettings, PRICES_BLACK, % " "
+IniRead, PRICES_WHITE, % INI_FILE, PriceSettings, PRICES_WHITE, % " "
+IniRead, MIN_MAP_TIER, % INI_FILE, PriceSettings, MIN_MAP_TIER, % 14
 IniRead, PRICE_LESSER, % INI_FILE, Prices, PRICE_LESSER, 0.015
 IniRead, PRICE_GREATER, % INI_FILE, Prices, PRICE_GREATER, 0.025
 IniRead, PRICE_GRAND, % INI_FILE, Prices, PRICE_GRAND, 0.03
@@ -59,6 +64,11 @@ CURRENCY["LESSER"] := PRICE_LESSER
 
 EMPTY_COLORS := StrSplit(EMPTY_COLORS, ",")
 EMPTY_COLORS_HAGGLE_WINDOW := StrSplit(EMPTY_COLORS_HAGGLE_WINDOW, ",")
+
+PRICES_MAPPING := StrReplace(PRICES_MAPPING, "|", "`n")
+PRICES_CUSTOM := StrReplace(PRICES_CUSTOM, "|", "`n")
+PRICES_BLACK := StrReplace(PRICES_BLACK, "|", "`n")
+PRICES_WHITE := StrReplace(PRICES_WHITE, "|", "`n")
 
 Gui, Tujen:+AlwaysOnTop
 
@@ -268,6 +278,43 @@ yPos := yPos + hControl * 2 + spaceControl * 2
 ; ---------------------------------------------------------------------------------
 ; ---------------------------------------------------------------------------------
 
+; Item Settings
+
+xPos := xPos - 10
+yPos := yPos + 20
+boxHeight := 20 + 15 * (20 + 5) + 10
+Gui Tujen:Add, GroupBox, x%xPos% y%yPos% w328 h%boxHeight% -Theme, Item Settings
+yPos := yPos + 20
+
+xPos := xPos + 10
+
+wEditBigBox := wEdit + 75
+xEditCoordinate := xEditCoordinate + 10
+
+Gui Tujen:Add, Text, x%xPos% y%yPos% w%wLabel% h%hControl% +0x200, Item Mapping
+Gui Tujen:Add, Edit, vPRICES_MAPPING x%xEditCoordinate% y%yPos% w%wEditBigBox% r5, % PRICES_MAPPING
+yPos := yPos + hControl * 4 + spaceControl
+
+Gui Tujen:Add, Text, x%xPos% y%yPos% w%wLabel% h%hControl% +0x200, Custom Prices
+Gui Tujen:Add, Edit, vPRICES_CUSTOM x%xEditCoordinate% y%yPos% w%wEditBigBox% r5, % PRICES_CUSTOM
+yPos := yPos + hControl * 4 + spaceControl
+
+Gui Tujen:Add, Text, x%xPos% y%yPos% w%wLabel% h%hControl% +0x200, Black List
+Gui Tujen:Add, Edit, vPRICES_BLACK x%xEditCoordinate% y%yPos% w%wEditBigBox% r5, % PRICES_BLACK
+yPos := yPos + hControl * 4 + spaceControl
+
+Gui Tujen:Add, Text, x%xPos% y%yPos% w%wLabel% h%hControl% +0x200, White List
+Gui Tujen:Add, Edit, vPRICES_WHITE x%xEditCoordinate% y%yPos% w%wEditBigBox% r5, % PRICES_WHITE
+
+yPos := yPos + hControl * 4 + spaceControl
+
+Gui Tujen:Add, Text, x%xPos% y%yPos% w%wLabel% h%hControl% +0x200, Min Map Tier
+Gui Tujen:Add, Edit, vMIN_MAP_TIER x%xEditCoordinate% y%yPos% w%wEditBigBox% h%hControl%, % MIN_MAP_TIER
+
+; ---------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------------
+
 GuiShowSettings() {
     global yPosMax, xPosition
     xPosition := A_ScreenWidth - 350 - 340
@@ -284,7 +331,6 @@ GuiHideSettings() {
 	}
     return
 }
-GuiShowSettings()
 
 TujenGuiClose(GuiHwnd) {  ; Declaring this parameter is optional.
     MsgBox 4,, Do you want to quit?
