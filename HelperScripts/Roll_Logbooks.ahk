@@ -7,8 +7,13 @@ SetWorkingDir, %A_ScriptDir%
 #Include ..\Gui\Tujen_Gui_Helpers.ahk
 #Include Logbook_Helpers.ahk
 
+UseChaos := true
+
 F1::
     FindText().ScreenShot()
+    if (UseChaos) {
+        Hold_Chaos()
+    }
     For C, GridX in InventoryGridX {
         For R, GridY in InventoryGridY {
         	PointColor := FindText().GetColor(GridX,GridY)
@@ -22,14 +27,42 @@ F1::
             if (!Is_Logbook(info)) {
                 continue
             }
+            if (Is_Corrupted(info)) {
+                continue
+            }
+            if (Is_Unidentified(info)) {
+                if (UseChaos) {
+                    Release_Chaos()
+                }
+                Wisdom_Item(ItemX, ItemY)
+                if (UseChaos) {
+                    Hold_Chaos()
+                    MouseMove, ItemX, ItemY, 3
+                }
+            }
+            if (UseChaos) {
+                if (!Is_Rare(info)) {
+                    Release_Chaos()
+                    if (!Is_Normal(info)) {
+                        Scour_Item(ItemX, ItemY)
+                    }
+                    Alch_Item(ItemX, ItemY)
+                    Hold_Chaos()
+                    MouseMove, ItemX, ItemY, 3
+                }
+            }
             while (Get_Quantity(info) < 70) {
                 if (!WinActive("Path of Exile") || ShouldBreak()) {
                     break
                 }
-                if (!Is_Normal(info)) {
-                    Scour_Item(ItemX, ItemY)
+                if (UseChaos) {
+                    Chaos_Item()
+                } else {
+                    if (!Is_Normal(info)) {
+                        Scour_Item(ItemX, ItemY)
+                    }
+                    Alch_Item(ItemX, ItemY)
                 }
-                Alch_Item(ItemX, ItemY)
                 Sleep, 100
                 info := Item_Info()
                 Sleep, 100
@@ -42,4 +75,8 @@ F1::
             break
         }
 	}
+    if (UseChaos) {
+        Release_Chaos()
+    }
+    ExitApp
 return

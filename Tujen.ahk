@@ -232,7 +232,6 @@ F3::
 	Inventory_Loop_Empty()
 return
 
-
 F4::
 	guiStats := new Gui_Stats()
 	guiStats.Show()

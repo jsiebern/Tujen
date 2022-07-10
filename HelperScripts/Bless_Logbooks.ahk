@@ -22,6 +22,7 @@ ShouldBless(LogbookArea) {
 
 F1::
     FindText().ScreenShot()
+    Hold_Bless()
     For C, GridX in InventoryGridX {
         For R, GridY in InventoryGridY {
         	PointColor := FindText().GetColor(GridX,GridY)
@@ -39,13 +40,17 @@ F1::
             if (!Is_Logbook(info)) {
                 continue
             }
+            if (Is_Corrupted(info)) {
+                continue
+            }
             l := new Logbook(info)
             a := l.GetBestArea()
             While (ShouldBless(a)) {
                 if (!WinActive("Path of Exile") || ShouldBreak()) {
                     break
                 }
-                Bless_Item(ItemX, ItemY)
+                Click_Bless()
+                ; Bless_Item(ItemX, ItemY)
                 Sleep, 100
                 info := Item_Info()
                 l.Refresh(info)
@@ -59,4 +64,6 @@ F1::
             break
         }
     }
+    Release_Bless()
+    ExitApp
 return
